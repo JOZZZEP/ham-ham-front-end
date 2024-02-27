@@ -1,0 +1,10 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(250, 177, 117);
+}
+
+.app-body {
+  background-color: rgb(250, 177, 117);
+}
+
