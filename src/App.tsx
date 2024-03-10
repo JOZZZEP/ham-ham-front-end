@@ -1,5 +1,7 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+import { useAuthContext } from "./context/AuthContext";
 import AllUserPage from "./pages/AllUser";
 import Header from "./pages/Header";
 import LoginPage from "./pages/Login";
@@ -8,22 +10,43 @@ import RankPage from "./pages/Rank";
 import RegisterPage from "./pages/Register";
 import VotePage from "./pages/Vote";
 
-const routers = createBrowserRouter([
-  { path: "/", element: <VotePage /> },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/rank", element: <RankPage /> },
-  { path: "/profile", element: <ProfilePage /> },
-  { path: "/alluser", element: <AllUserPage /> },
-]);
-
 function App() {
+  const { auth, setAuth } = useAuthContext();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setAuth(localStorage.getItem("auth") === "login");
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return <></>;
+  }
+
   return (
     <>
-        <Header />
+      {auth ? (
+        <>
+          <Header />
+          <div className="app-body">
+            <Routes>
+              <Route path="/" element={<VotePage />} />
+              <Route path="/rank" element={<RankPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/alluser" element={<AllUserPage />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        </>
+      ) : (
         <div className="app-body">
-          <RouterProvider router={routers} />
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </div>
+      )}
     </>
   );
 }

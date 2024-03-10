@@ -2,14 +2,18 @@ import {
   Button,
   Card,
   CardContent,
+  CardMedia,
   Divider,
   TextField,
   Typography,
   styled,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
+import { ChangeEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HamHamBanner from "../assets/HamHamBanner.png";
+import Ham4 from "../assets/ham4.jpg";
+import { UserResponse } from "../model/UserResponse";
+import { AuthService } from "../services/AuthService";
 
 const CssTextField = styled(TextField)({
   "& label": {
@@ -36,11 +40,43 @@ const CssTextField = styled(TextField)({
 });
 
 function RegisterPage() {
+  const authService = new AuthService();
   const navigate = useNavigate();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  const nameRef = useRef<HTMLInputElement>();
+  const usernameRef = useRef<HTMLInputElement>();
+  const passwordRef = useRef<HTMLInputElement>();
+  const rePasswordRef = useRef<HTMLInputElement>();
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
+
+    const name = nameRef.current?.value;
+    const username = usernameRef.current?.value;
+    const password = passwordRef.current?.value;
+    const user: UserResponse = {
+      name: name ?? "",
+      username: username ?? "",
+      password: password ?? "",
+      avatar: avatarFile,
+    };
+
+    authService.register(user);
+  };
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    if (event.target.files) {
+      setAvatarFile(event.target.files[0]);
+    }
+  }
+
   return (
     <>
-      <Container maxWidth={"sm"} sx={{ height: "100%"}}>
+      <Container maxWidth={"sm"} sx={{ height: "100%" }}>
         <Box
+          pt={5}
+          pb={5}
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -49,13 +85,6 @@ function RegisterPage() {
           }}
         >
           <Card sx={{ p: 3, borderRadius: "1rem" }}>
-            <Box p={"1rem"}>
-              <img
-                className="bounce-in"
-                src={HamHamBanner}
-                style={{ maxWidth: "100%", height: "auto" }}
-              />
-            </Box>
             <CardContent>
               <Box
                 className="bounce-in"
@@ -67,13 +96,95 @@ function RegisterPage() {
                 }}
               >
                 <Typography color={"rgb(200, 120, 20)"} variant="h4">
-                  Register
+                  Sign Up
                 </Typography>
-                <CssTextField label="Username" sx={{ fontSize:"1rem"}}/>
-                <CssTextField label="Password" />
-                <CssTextField label="Re-Password" />
+                <Box sx={{ display: "flex", gap: 3 }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "start",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      sx={{
+                        borderRadius: "50%",
+                        aspectRatio: "1/1",
+                      }}
+                      image={
+                        avatarFile ? URL.createObjectURL(avatarFile) : Ham4
+                      }
+                    />
+                    <input
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      id="avatar-upload"
+                      type="file"
+                      onChange={handleFileChange}
+                    />
+                    <label htmlFor="avatar-upload">
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          fontSize: "1.2rem",
+                          borderRadius: "10rem",
+                          backgroundColor: "rgb(240, 165, 70)",
+                          boxShadow: 0,
+                          ":hover": {
+                            backgroundColor: "rgb(200, 120, 20)",
+                            boxShadow: 0,
+                          },
+                        }}
+                        component="span"
+                        fullWidth
+                      >
+                        <Typography color={"white"} variant="body1">
+                          UPLOAD
+                        </Typography>
+                      </Button>
+                    </label>
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "start",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <CssTextField
+                      fullWidth
+                      inputRef={nameRef}
+                      label="Name"
+                      sx={{ fontSize: "1rem" }}
+                    />
+                    <CssTextField
+                      fullWidth
+                      inputRef={usernameRef}
+                      label="Username"
+                      sx={{ fontSize: "1rem" }}
+                    />
+                  </Box>
+                </Box>
+                <CssTextField
+                  inputRef={passwordRef}
+                  label="Password"
+                  type="password"
+                />
+                <CssTextField
+                  inputRef={rePasswordRef}
+                  label="Repeat Password"
+                  type="password"
+                />
               </Box>
-              <Divider className="bounce-in" sx={{m:3}}/>
+              <Divider className="bounce-in" sx={{ m: 3 }} />
               <Box
                 className="bounce-in"
                 sx={{
@@ -88,18 +199,18 @@ function RegisterPage() {
                   fullWidth
                   size="large"
                   sx={{
-                    fontSize:"1.5rem",
+                    fontSize: "1.3rem",
                     borderRadius: "10rem",
                     backgroundColor: "rgb(240, 165, 70)",
-                    boxShadow:0,
+                    boxShadow: 0,
                     ":hover": {
                       backgroundColor: "rgb(200, 120, 20)",
-                      boxShadow:0,
+                      boxShadow: 0,
                     },
                   }}
-                  onClick={() => {
-                    navigate("/", { replace: true });
-                  }}
+                  onClick={
+                    handleSubmit
+                  }
                 >
                   Sign Up
                 </Button>
@@ -108,7 +219,7 @@ function RegisterPage() {
                   fullWidth
                   size="large"
                   sx={{
-                    fontSize:"1rem",
+                    fontSize: "1rem",
                     borderRadius: "10rem",
                     color: "rgb(240, 165, 70)",
                     borderColor: "rgb(240, 165, 70)",

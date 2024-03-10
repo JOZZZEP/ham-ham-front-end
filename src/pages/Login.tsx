@@ -1,15 +1,19 @@
 import {
-    Button,
-    Card,
-    CardContent,
-    Divider,
-    TextField,
-    Typography,
-    styled,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  TextField,
+  Typography,
+  styled,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import HamHamBanner from "../assets/HamHamBanner.png";
+import { useAuthContext } from "../context/AuthContext";
+import { UserResponse } from "../model/UserResponse";
+import { AuthService } from "../services/AuthService";
 
 const CssTextField = styled(TextField)({
   "& label": {
@@ -37,10 +41,40 @@ const CssTextField = styled(TextField)({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { setAuth } = useAuthContext();
+
+  const authService = new AuthService();
+  const usernameRef = useRef<HTMLInputElement>();
+  const passwordRef = useRef<HTMLInputElement>();
+
+  const handleClickLogin = () => {
+    const username = usernameRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (username && password) {
+      const user: UserResponse = {
+        username: username,
+        password: password,
+      };
+      authService
+        .login(user)
+        .then((res: UserResponse) => {
+          console.log(res);
+          if (Object.keys(res).length !== 0) {
+            setAuth(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error occurred during login:", error);
+        });
+    }
+  };
   return (
     <>
       <Container maxWidth={"sm"} sx={{ height: "100%" }}>
         <Box
+          pt={5}
+          pb={5}
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -69,10 +103,14 @@ function LoginPage() {
                 <Typography color={"rgb(200, 120, 20)"} variant="h4">
                   Login
                 </Typography>
-                <CssTextField label="Username" sx={{ fontSize:"1rem"}}/>
-                <CssTextField label="Password" />
+                <CssTextField
+                  inputRef={usernameRef}
+                  label="Username"
+                  sx={{ fontSize: "1rem" }}
+                />
+                <CssTextField inputRef={passwordRef} label="Password" />
               </Box>
-              <Divider className="bounce-in" sx={{m:3}}/>
+              <Divider className="bounce-in" sx={{ m: 3 }} />
               <Box
                 className="bounce-in"
                 sx={{
@@ -87,18 +125,16 @@ function LoginPage() {
                   fullWidth
                   size="large"
                   sx={{
-                    fontSize:"1.5rem",
+                    fontSize: "1.3rem",
                     borderRadius: "10rem",
                     backgroundColor: "rgb(240, 165, 70)",
-                    boxShadow:0,
+                    boxShadow: 0,
                     ":hover": {
                       backgroundColor: "rgb(200, 120, 20)",
-                      boxShadow:0,
+                      boxShadow: 0,
                     },
                   }}
-                  onClick={() => {
-                    navigate("/vote");
-                  }}
+                  onClick={handleClickLogin}
                 >
                   Login
                 </Button>
@@ -107,7 +143,7 @@ function LoginPage() {
                   fullWidth
                   size="large"
                   sx={{
-                    fontSize:"1rem",
+                    fontSize: "1rem",
                     borderRadius: "10rem",
                     color: "rgb(240, 165, 70)",
                     borderColor: "rgb(240, 165, 70)",

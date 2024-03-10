@@ -1,10 +1,11 @@
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
-    Avatar,
-    Card,
-    CardContent,
-    CardHeader,
-    CardMedia,
-    Typography
+  Avatar,
+  Card,
+  CardContent,
+  CardHeader,
+  CardMedia,
+  Typography
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import Ham1 from "../assets/ham1.jpg";
@@ -38,7 +39,7 @@ function RankPage() {
               <CardMedia component="img" height="100%" image={ham} />
               <CardContent sx={{display:'flex'}}>
                 <Typography variant="h2">{index + 1}</Typography>
-                {/* <Typography variant="h6">Ham Ham</Typography> */}
+                <Typography variant="h5" color={"green"}><ArrowDropUpIcon/>{index + 1}</Typography>
               </CardContent>
               {/* <CardActions disableSpacing>
               <IconButton aria-label="add to favorites">F</IconButton>

@@ -1,13 +1,13 @@
 import CloseIcon from "@mui/icons-material/Close";
 import {
   Dialog,
-  DialogActions,
   DialogContent,
   IconButton,
-  useMediaQuery,
+  Typography
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useState } from "react";
+
 import Ham1 from "../assets/ham1.jpg";
 import Ham2 from "../assets/ham2.jpg";
 import SunflowerSeed from "../assets/sunflowerSeed.png";
@@ -17,17 +17,17 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 function VotePage() {
-  const isSmallThan800 = useMediaQuery("(max-width: 800px)");
-  const isSmallThan1000 = useMediaQuery("(max-width: 1000px)");
 
   const [open, setOpen] = useState(false);
   const [pic, setPic] = useState(null);
   const [isFeeding, setIsFeeding] = useState(false);
 
   const feed = async () => {
-    setIsFeeding(!isFeeding);
-    await delay(2000);
-    setIsFeeding(false);
+    setIsFeeding(prevIsFeeding => !prevIsFeeding);
+    await delay(1000);
+    setOpen(false);
+    await delay(200);
+    setIsFeeding(prevIsFeeding => !prevIsFeeding);
   };
 
   const handleClickOpen = (pic: any) => {
@@ -41,47 +41,39 @@ function VotePage() {
 
   return (
     <>
-      <Container
-        maxWidth={isSmallThan800 ? "md" : "lg"}
-      >
+      <Container maxWidth={"lg"}>
         <Box
           sx={{
-            pt: isSmallThan800 ? "1rem" : "2rem",
-            pb: isSmallThan800 ? "2rem" : "4rem",
+            pt: 2,
+            pb: 2,
             display: "flex",
-            flexDirection: isSmallThan800 ? "column" : "row",
-            gap: isSmallThan800 ? "2rem" : "4rem",
+            flexWrap: "wrap",
+            gap: 4,
           }}
         >
-          <Box className="bounce-in ham1" flex={1}>
+          <Box className="bounce-in ham1" flex={"1 1 450px"}>
             <img
+              draggable={false}
               src={Ham1}
               onClick={() => handleClickOpen(Ham1)}
               width={"100%"}
               style={{
                 objectFit: "cover",
-                aspectRatio: isSmallThan800
-                  ? "10/9"
-                  : isSmallThan1000
-                  ? "3/4"
-                  : "1/1",
-                borderRadius: "1rem",
+                aspectRatio: "1/1",
+                borderRadius: "10px",
               }}
             />
           </Box>
-          <Box className="bounce-in ham2" flex={1}>
+          <Box className="bounce-in ham2" flex={"1 1 450px"}>
             <img
+              draggable={false}
               src={Ham2}
               onClick={() => handleClickOpen(Ham2)}
               width={"100%"}
               style={{
                 objectFit: "cover",
-                aspectRatio: isSmallThan800
-                  ? "10/9"
-                  : isSmallThan1000
-                  ? "3/4"
-                  : "1/1",
-                borderRadius: "1rem",
+                aspectRatio: "1/1",
+                borderRadius: "10px",
               }}
             />
           </Box>
@@ -101,12 +93,18 @@ function VotePage() {
         <DialogContent
           sx={{
             padding: "1",
-            display: "flex",
-            justifyContent: "center",
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <img
+              draggable={false}
               width={"100%"}
               src={pic!}
               style={{
@@ -115,26 +113,65 @@ function VotePage() {
                 borderRadius: "10px",
               }}
             />
+            <IconButton
+              onClick={handleClose}
+              sx={{
+                position: "absolute",
+                right: 10,
+                top: 10,
+                width: "3rem",
+                height: "3rem",
+                backgroundColor: "rgb(250, 177, 117)",
+              }}
+            >
+              <CloseIcon
+                sx={{
+                  color: "white",
+                  fontSize: "2rem",
+                  filter: "drop-shadow(3px 3px 2px black)",
+                }}
+              />
+            </IconButton>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 20,
+                right: 20,
+                display: "flex",
+                alignItems: "center",
+              }}
+              className={`sun-seed  ${
+                isFeeding ? "feed-ham-ham" : "bounce-in"
+              }`}
+            >
+              <img
+                src={SunflowerSeed}
+                width={100}
+                style={{
+                  filter: "drop-shadow(2px 2px 10px white)",
+                }}
+                onClick={!isFeeding ? feed : undefined}
+              />
+            </Box>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 40,
+                right: 150,
+              }}
+            >
+              <Typography
+                variant="h6"
+                color={"white"}
+                sx={{
+                  filter: "drop-shadow(3px 3px 4px black)",
+                }}
+              >
+                Vote --&gt;
+              </Typography>
+            </Box>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ display: "flex", position: "relative", pb: 2 }}>
-          <Box flex={2} sx={{ display: "flex", justifyContent: "center" }}>
-            <img
-              className={`sun-seed  ${isFeeding ? "bounce-out" : "bounce-in"}`}
-              src={SunflowerSeed}
-              height={60}
-              style={{ filter: "drop-shadow(0 0 5px white)", zIndex: 99 }}
-              onClick={!isFeeding ? feed : undefined}
-            />
-          </Box>
-          <IconButton
-            size="medium"
-            onClick={handleClose}
-            sx={{ position: "absolute" }}
-          >
-            <CloseIcon sx={{ color: "white", fontSize: 50 }} />
-          </IconButton>
-        </DialogActions>
       </Dialog>
     </>
   );
