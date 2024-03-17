@@ -2,71 +2,88 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Divider,
-  TextField,
   Typography,
-  styled,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HamHamBanner from "../assets/HamHamBanner.png";
+import CustomTextField from "../components/CustomTextfield/CustomTextField";
+import { LOCAL_AUTH_TOKEN } from "../constant/Constant";
 import { useAuthContext } from "../context/AuthContext";
+import { useUserContext } from "../context/UserContext";
 import { UserResponse } from "../model/UserResponse";
 import { AuthService } from "../services/AuthService";
 
-const CssTextField = styled(TextField)({
-  "& label": {
-    color: "rgb(200, 120, 20)",
-  },
-  "& label.Mui-focused": {
-    color: "rgb(200, 120, 20)",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "rgb(200, 120, 20)",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-      borderRadius: "10rem",
-    },
-    "&:hover fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-    },
-  },
-});
-
 function LoginPage() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthContext();
+  const { auth, setAuth } = useAuthContext();
 
   const authService = new AuthService();
   const usernameRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const { setUser } = useUserContext();
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timer.current);
+    };
+  }, []);
 
   const handleClickLogin = () => {
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
 
     if (username && password) {
-      const user: UserResponse = {
-        username: username,
-        password: password,
-      };
-      authService
-        .login(user)
-        .then((res: UserResponse) => {
-          console.log(res);
-          if (Object.keys(res).length !== 0) {
-            setAuth(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error occurred during login:", error);
-        });
+      if (!loading) {
+        setSuccess(false);
+        setLoading(true);
+        Promise.race([
+          authService.login({
+            username: username,
+            password: password,
+          }),
+          new Promise(() => {
+            setTimeout(() => {}, 10000);
+          }),
+        ])
+          .then((res: any) => {
+            console.log(res);
+            if (res) {
+              if (Object.keys(res).length !== 0) {
+                const user: UserResponse = {
+                  uid: res.user.uid,
+                  name: res.user.name,
+                  username: res.user.username,
+                  avatar: res.user.avatar,
+                  role: res.user.role,
+                };
+                setUser(user);
+                setAuth(true);
+                localStorage.setItem(LOCAL_AUTH_TOKEN, res.token);
+                setSuccess(true);
+              }
+            } else {
+              console.error("Invalid response received during login");
+            }
+          })
+          .catch((error) => {
+            if (error.message === "Login request timed out") {
+              console.error("Login request timed out");
+            } else {
+              console.error("Error occurred during login:", error);
+            }
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
     }
   };
   return (
@@ -103,12 +120,17 @@ function LoginPage() {
                 <Typography color={"rgb(200, 120, 20)"} variant="h4">
                   Login
                 </Typography>
-                <CssTextField
+                <CustomTextField
+                  disabled={loading}
                   inputRef={usernameRef}
                   label="Username"
                   sx={{ fontSize: "1rem" }}
                 />
-                <CssTextField inputRef={passwordRef} label="Password" />
+                <CustomTextField
+                  disabled={loading}
+                  inputRef={passwordRef}
+                  label="Password"
+                />
               </Box>
               <Divider className="bounce-in" sx={{ m: 3 }} />
               <Box
@@ -120,26 +142,43 @@ function LoginPage() {
                   p: "0 1rem",
                 }}
               >
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  sx={{
-                    fontSize: "1.3rem",
-                    borderRadius: "10rem",
-                    backgroundColor: "rgb(240, 165, 70)",
-                    boxShadow: 0,
-                    ":hover": {
-                      backgroundColor: "rgb(200, 120, 20)",
+                <Box sx={{ position: "relative" }}>
+                  <Button
+                    variant="contained"
+                    disabled={loading}
+                    fullWidth
+                    size="large"
+                    sx={{
+                      fontSize: "1.3rem",
+                      borderRadius: "10rem",
+                      backgroundColor: "rgb(240, 165, 70)",
                       boxShadow: 0,
-                    },
-                  }}
-                  onClick={handleClickLogin}
-                >
-                  Login
-                </Button>
+                      ":hover": {
+                        backgroundColor: "rgb(200, 120, 20)",
+                        boxShadow: 0,
+                      },
+                    }}
+                    onClick={handleClickLogin}
+                  >
+                    Login
+                  </Button>
+                  {loading && (
+                    <CircularProgress
+                      color="warning"
+                      size={30}
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        marginTop: "-15px",
+                        marginLeft: "-15px",
+                      }}
+                    />
+                  )}
+                </Box>
                 <Button
                   variant="outlined"
+                  disabled={loading}
                   fullWidth
                   size="large"
                   sx={{

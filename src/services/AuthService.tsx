@@ -1,21 +1,19 @@
 import axios from "axios";
-import { API_URL } from "../constant/APIEndpoint";
-import { UserResponse } from "../model/UserResponse";
+import { API_URL } from "../constant/Constant";
 
 export class AuthService {
-  async login(user: UserResponse) {
+  async login(user: any) {
     const body = {
       username: user.username,
       password: user.password,
     };
     const url = API_URL + "/user/login";
     const response = await axios.post(url, body);
-    const userRes: UserResponse = response.data;
-    console.log(userRes);
+    const userRes = response.data;
     return userRes;
   }
 
-  async register(user: UserResponse) {
+  async register(user: any) {
     const formData = new FormData();
     if (user.name) {
       formData.append("name", user.name);
@@ -33,8 +31,16 @@ export class AuthService {
       },
     });
     const result = response.data;
-    console.log(result);
-
     return result;
+  }
+
+  async getUserByToken(token: string) {
+    const body = {
+      token: token,
+    };
+    const url = API_URL + "/user/getUser";
+    const response = await axios.post(url, body);
+    console.log(response.data);
+    return response.data;
   }
 }

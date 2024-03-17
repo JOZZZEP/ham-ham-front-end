@@ -1,64 +1,129 @@
+import GroupsIcon from "@mui/icons-material/Groups";
+import LeaderboardIcon from "@mui/icons-material/Leaderboard";
+import LoginIcon from "@mui/icons-material/Login";
 import {
   AppBar,
+  Avatar,
+  Button,
   IconButton,
   Toolbar,
-  useMediaQuery
+  Tooltip,
+  useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { useNavigate } from "react-router-dom";
+import DefaultPic from "../assets/DefaultPic.png";
 import HamHamBanner from "../assets/HamHamBanner.png";
 import HamHamSmallBanner from "../assets/HamHamSmallBanner.png";
-import Profile from "../assets/profile.png";
-import "./Animate.css";
+import { useAuthContext } from "../context/AuthContext";
+import { useUserContext } from "../context/UserContext";
+import "../util/Animate.css";
 
 function Header() {
   const navigate = useNavigate();
-  const isSmallThan500 = useMediaQuery("(max-width: 500px)");
+  const isSmallThan500 = useMediaQuery("(max-width: 800px)");
+  const { user } = useUserContext();
+  const { auth } = useAuthContext();
+
   return (
     <>
       <AppBar
         position="sticky"
-        sx={{ backgroundColor: "rgb(250, 177, 117)", boxShadow: 0, pt: 1 }}
+        sx={{ backgroundColor: "rgb(250, 177, 117)", boxShadow: 0 }}
       >
         <Toolbar className="tool-bar">
-          <img
-            className="bounce-in"
-            src={isSmallThan500 ? HamHamSmallBanner : HamHamBanner}
-            height={50}
-            style={{ filter: "drop-shadow(0 0 2px white" }}
-          />
-          <Box
-            flexGrow={1}
-            sx={{ display: "flex", justifyContent: "flex-end", gap:2}}
-          >
-            <IconButton
-              className="bounce-in"
+          <Box flexGrow={1}>
+            <Tooltip title={"Vote"}>
+              <IconButton
+                className="bounce-in"
+                size="large"
+                onClick={() => {
+                  if (location.pathname !== "/") {
+                    navigate("/");
+                  }
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                sx={{ borderRadius: 4 }}
+              >
+                <img
+                  className="bounce-in"
+                  draggable={false}
+                  src={isSmallThan500 ? HamHamSmallBanner : HamHamBanner}
+                  height={45}
+                  style={{ filter: "drop-shadow(0 0 2px white" }}
+                />
+              </IconButton>
+            </Tooltip>
+          </Box>
+          {auth ? (
+            <Box sx={{display:"flex", alignItems:"center"}}>
+              {user?.role === "admin" && (
+                <Tooltip title="All User" sx={{ mr: 1 }}>
+                  <IconButton
+                    className="bounce-in"
+                    onClick={() => {
+                      if (location.pathname !== "/alluser") {
+                        navigate("/alluser");
+                      }
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    <GroupsIcon fontSize="large" sx={{ color: "white" }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Tooltip title="Rank" sx={{ mr: 1 }}>
+                <IconButton
+                  className="bounce-in"
+                  onClick={() => {
+                    if (location.pathname !== "/rank") {
+                      navigate("/rank");
+                    }
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <LeaderboardIcon fontSize="large" sx={{ color: "white" }} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Profile">
+                <Avatar
+                  className="bounce-in"
+                  draggable={false}
+                  src={user?.avatar ? user.avatar : DefaultPic}
+                  sx={{
+                    bgcolor: "rgb(250, 177, 117)",
+                    filter: "drop-shadow(0 0 2px white)",
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.9,
+                    },
+                  }}
+                  onClick={() => {
+                    if (location.pathname !== "/profile") {
+                      navigate("/profile");
+                    }
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </Tooltip>
+            </Box>
+          ) : (
+            <Button
+              variant="contained"
+              color="success"
+              disabled={location.pathname === "/login"}
               size="medium"
+              endIcon={<LoginIcon />}
               onClick={() => {
-                if (location.pathname !== "/profile") {
-                  navigate("/profile");
+                if (location.pathname !== "/login") {
+                  navigate("/login");
                 }
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             >
-              <img
-                src={Profile}
-                height={50}
-                style={{ filter: "drop-shadow(0 0 5px white)" }}
-              />
-            </IconButton>
-            {/* <Button className="bounce-in" variant="contained" color="warning" onClick={() => navigate("/rank")}>
-              Rank
+              Login
             </Button>
-            <Button className="bounce-in" variant="contained" color="primary" onClick={() => navigate("/alluser")}>
-              All user
-            </Button>
-            <Button className="bounce-in" variant="contained" color="success" onClick={() => navigate("/")}>
-              Vote
-            </Button>
-            <Button className="bounce-in" variant="contained" color="error" onClick={() => navigate("/login")}>
-              Log Out
-            </Button> */}
-          </Box>
+          )}
         </Toolbar>
       </AppBar>
     </>

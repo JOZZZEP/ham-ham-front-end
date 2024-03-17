@@ -1,30 +1,76 @@
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Card,
+  CardActionArea,
   CardContent,
   CardMedia,
-  Dialog,
-  DialogContent,
   Divider,
+  IconButton,
   Typography,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
-import { LineChart } from "@mui/x-charts";
-import { useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import DefaultPic from "../assets/DefaultPic.png";
+import DefaultPicAdd from "../assets/DefaultPicAdd.png";
 import Ham1 from "../assets/ham1.jpg";
 import Ham2 from "../assets/ham2.jpg";
 import Ham3 from "../assets/ham3.jpg";
 import Ham4 from "../assets/ham4.jpg";
 import Ham5 from "../assets/ham5.jpg";
+import { OptionProfileDialog } from "../components/Profile/OptionProfileDialig";
+import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
+import { PictureUploadDialog } from "../components/Profile/PictureUploadDialog";
+import { useUserContext } from "../context/UserContext";
+import { PictureService } from "../services/PictureService";
 
 const hams = [Ham1, Ham2, Ham3, Ham4, Ham5];
 
 function ProfilePage() {
   const [open, setOpen] = useState(false);
-  const [pic, setPic] = useState(null);
+  const [optionProfileOpen, setOptionProfileOpen] = useState(false);
+  const [uploadPictureOpen, setUploadPictureOpen] = useState(false);
 
-  const handleClickOpen = (pic: any) => {
+  const [pic, setPic] = useState<any>(null);
+  const [pid, setPid] = useState<any>(null);
+  const [picDetail, setPicDetail] = useState<any>(null);
+
+  const [pictures, setPictures] = useState([]);
+  const pictureService = new PictureService();
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
+
+  const { user } = useUserContext();
+  useEffect(() => {
+    return () => {
+      pictureService.picByUserID(user?.uid as number).then((res) => {
+        if (res.response) {
+          setPictures(res.pictures);
+        }
+      });
+    };
+  }, []);
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    if (event.target.files) {
+      setPictureFile(event.target.files[0]);
+      setUploadPictureOpen(true);
+    }
+  }
+
+  const resetFileInput = () => {
+    const fileInput = document.getElementById(
+      "picture-upload"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const handleClickOpen = (pic: any, pid: any, detail: any) => {
+    setPid(pid);
     setPic(pic);
+    setPicDetail(detail);
+    console.log(pid);
+
     setOpen(true);
   };
 
@@ -36,134 +82,133 @@ function ProfilePage() {
       <Container maxWidth={"md"} sx={{ pt: 2, pb: 2 }}>
         <Card>
           <Box sx={{ display: "flex", p: 2 }}>
-            <CardMedia
-              component="img"
-              sx={{ width: "25%", borderRadius: "50%", aspectRatio: "1/1" }}
-              image={DefaultPic}
-            />
-            <Box sx={{ display: "flex", flexDirection: "column", pl: 2 }}>
-              <CardContent sx={{ flex: "1 0 auto" }}>
-                <Typography component="div" variant="h5">
-                  HAMHAMLOVELY
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  color="text.secondary"
-                  component="div"
-                >
-                  @hamhamlov
-                </Typography>
-              </CardContent>
-            </Box>
-          </Box>
-          <Divider sx={{ m: 2 }} />
-          <Box mt={2} sx={{ display: "flex", flexWrap: "wrap", p: 1 }}>
-            {hams.map((ham, index) => (
-              <Box
-                key={index}
-                sx={{
-                  flex: index < 2 ? "1 0 50%" : "1 0 33%",
-                  maxWidth: index < 2 ? "1 0 50%" : "1 0 33%",
-                }}
-              >
-                <CardMedia
-                  draggable={false}
-                  component="img"
-                  sx={{
-                    p: 0.3,
-                    aspectRatio: "1/1",
-                  }}
-                  image={ham}
-                  onClick={() => handleClickOpen(ham)}
-                />
-              </Box>
-            ))}
-          </Box>
-        </Card>
-      </Container>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth={"xl"}
-        sx={{
-          "& .MuiPaper-root": {
-            backgroundColor: "rgb(250, 177, 117)",
-            animation: "bounce-in 500ms ease-out",
-          },
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "90%",
-              height: "80%",
-            },
-          },
-        }}
-      >
-        <DialogContent
-          sx={{
-            padding: "1",
-          }}
-        >
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-            <Box sx={{ flex: "1 0 350px" }}>
-              <img
+            <Box sx={{ flex: "1 0 100px" }}>
+              <CardMedia
                 draggable={false}
-                width={"100%"}
-                src={pic!}
-                style={{
-                  objectFit: "cover",
-                  aspectRatio: "1/1",
-                  borderRadius: "10px",
-                }}
+                component="img"
+                sx={{ borderRadius: "50%", aspectRatio: "1/1" }}
+                image={user?.avatar ? user.avatar : DefaultPic}
               />
             </Box>
             <Box
               sx={{
-                flex: "3 0 350px",
-                aspectRatio: "16/9",
-                backgroundColor: "white",
-                borderRadius: 3,
+                flex: "10 0 200px",
+                display: "flex",
+                flexDirection: "column",
+                pl: 2,
               }}
             >
-              <LineChart
-                sx={{ width: "100%" }}
-                xAxis={[
-                  {
-                    data: [
-                      "22",
-                      "23",
-                      "24",
-                      "25",
-                      "26",
-                      "27",
-                      "28",
-                      "29",
-                      "30",
-                      "31",
-                    ],
-                    label: "Day",
-                    scaleType: "band",
-                  },
-                ]}
-                yAxis={[{ label: "Point" }]}
-                series={[
-                  {
-                    curve: "linear",
-                    data: [3, 4, 5, 6, 2, 4, 8, 1, 5, 2],
-                    color: "#59a14f",
-                    label: "Win",
-                  },
-                  {
-                    curve: "linear",
-                    data: [2, 10, 2, 8, 1, 5, 10, 2, 8, 1],
-                    color: "#e15759",
-                    label: "Lose",
-                  },
-                ]}
-              />
+              <CardContent sx={{ position: "relative" }}>
+                <Typography component="div" variant="h6">
+                  {user?.name}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  component="div"
+                >
+                  @{user?.username}
+                </Typography>
+                <IconButton
+                  size={"large"}
+                  sx={{ position: "absolute", right: 0, top: 0 }}
+                  onClick={() => setOptionProfileOpen(true)}
+                >
+                  <MoreHorizIcon />
+                </IconButton>
+              </CardContent>
             </Box>
           </Box>
-        </DialogContent>
-      </Dialog>
+          <Box
+            sx={{
+              ml: 2,
+              mr: 2,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Divider sx={{ flex: 1, mr: 1 }} />
+            <Typography variant="body1">
+              Pictures : {pictures.length}/5
+            </Typography>
+          </Box>
+          <Box
+            sx={{ p: 1, display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
+          >
+            {pictures.length > 0 &&
+              pictures.map((pic: any, index) => (
+                <Box key={index}>
+                  <CardActionArea>
+                    <CardMedia
+                      draggable={false}
+                      component="img"
+                      sx={{
+                        p: 0.3,
+                        aspectRatio: "1/1",
+                      }}
+                      image={pic.picture.url}
+                      onClick={() =>
+                        handleClickOpen(
+                          pic.picture.url,
+                          pic.picture.pid,
+                          pic.detail
+                        )
+                      }
+                    />
+                  </CardActionArea>
+                </Box>
+              ))}
+            {pictures.length < 5 && (
+              <Box>
+                <CardActionArea>
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="picture-upload"
+                    type="file"
+                    onChange={handleFileChange}
+                  />
+                  <label htmlFor="picture-upload">
+                    <CardMedia
+                      draggable={false}
+                      component="img"
+                      sx={{
+                        p: 0.3,
+                        aspectRatio: "1/1",
+                      }}
+                      image={DefaultPicAdd}
+                      onClick={() => {
+                        resetFileInput();
+                      }}
+                    />
+                  </label>
+                </CardActionArea>
+              </Box>
+            )}
+          </Box>
+        </Card>
+      </Container>
+      <PictureDetailDialog
+        open={open}
+        onClose={handleClose}
+        pic={pic}
+        detail={picDetail}
+        maxWidth={picDetail ? "lg" : "sm"}
+        pid={pid}
+      />
+      <OptionProfileDialog
+        user={user}
+        open={optionProfileOpen}
+        onClose={() => setOptionProfileOpen(false)}
+      />
+      <PictureUploadDialog
+        open={uploadPictureOpen}
+        onClose={() => {
+          setUploadPictureOpen(false);
+        }}
+        picture={pictureFile}
+        user={user}
+      />
     </>
   );
 }

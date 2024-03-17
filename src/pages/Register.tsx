@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CircularProgress,
   Divider,
   TextField,
   Typography,
@@ -11,8 +12,7 @@ import {
 import { Box, Container } from "@mui/system";
 import { ChangeEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Ham4 from "../assets/ham4.jpg";
-import { UserResponse } from "../model/UserResponse";
+import DefaultPic from "../assets/DefaultPic.png";
 import { AuthService } from "../services/AuthService";
 
 const CssTextField = styled(TextField)({
@@ -48,21 +48,27 @@ function RegisterPage() {
   const usernameRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
   const rePasswordRef = useRef<HTMLInputElement>();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (event: any) => {
+    setLoading(true);
     event.preventDefault();
 
     const name = nameRef.current?.value;
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
-    const user: UserResponse = {
-      name: name ?? "",
-      username: username ?? "",
-      password: password ?? "",
-      avatar: avatarFile,
-    };
 
-    authService.register(user);
+    authService
+      .register({
+        name: name,
+        username: username,
+        password: password,
+        avatar: avatarFile,
+      })
+      .then(() => {
+        navigate("/login", { replace: true });
+        setLoading(false);
+      });
   };
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -116,7 +122,9 @@ function RegisterPage() {
                         aspectRatio: "1/1",
                       }}
                       image={
-                        avatarFile ? URL.createObjectURL(avatarFile) : Ham4
+                        avatarFile
+                          ? URL.createObjectURL(avatarFile)
+                          : DefaultPic
                       }
                     />
                     <input
@@ -128,6 +136,7 @@ function RegisterPage() {
                     />
                     <label htmlFor="avatar-upload">
                       <Button
+                        disabled={loading}
                         variant="contained"
                         size="small"
                         sx={{
@@ -160,12 +169,14 @@ function RegisterPage() {
                     }}
                   >
                     <CssTextField
+                      disabled={loading}
                       fullWidth
                       inputRef={nameRef}
                       label="Name"
                       sx={{ fontSize: "1rem" }}
                     />
                     <CssTextField
+                      disabled={loading}
                       fullWidth
                       inputRef={usernameRef}
                       label="Username"
@@ -174,11 +185,13 @@ function RegisterPage() {
                   </Box>
                 </Box>
                 <CssTextField
+                  disabled={loading}
                   inputRef={passwordRef}
                   label="Password"
                   type="password"
                 />
                 <CssTextField
+                  disabled={loading}
                   inputRef={rePasswordRef}
                   label="Repeat Password"
                   type="password"
@@ -194,27 +207,42 @@ function RegisterPage() {
                   p: "0 1rem",
                 }}
               >
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  sx={{
-                    fontSize: "1.3rem",
-                    borderRadius: "10rem",
-                    backgroundColor: "rgb(240, 165, 70)",
-                    boxShadow: 0,
-                    ":hover": {
-                      backgroundColor: "rgb(200, 120, 20)",
+                <Box sx={{ position: "relative" }}>
+                  <Button
+                    disabled={loading}
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    sx={{
+                      fontSize: "1.3rem",
+                      borderRadius: "10rem",
+                      backgroundColor: "rgb(240, 165, 70)",
                       boxShadow: 0,
-                    },
-                  }}
-                  onClick={
-                    handleSubmit
-                  }
-                >
-                  Sign Up
-                </Button>
+                      ":hover": {
+                        backgroundColor: "rgb(200, 120, 20)",
+                        boxShadow: 0,
+                      },
+                    }}
+                    onClick={handleSubmit}
+                  >
+                    Sign Up
+                  </Button>
+                  {loading && (
+                    <CircularProgress
+                      color="warning"
+                      size={30}
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        marginTop: "-15px",
+                        marginLeft: "-15px",
+                      }}
+                    />
+                  )}
+                </Box>
                 <Button
+                  disabled={loading}
                   variant="outlined"
                   fullWidth
                   size="large"

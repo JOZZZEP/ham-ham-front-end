@@ -1,4 +1,5 @@
 import { Component, createContext, ReactNode, useContext } from "react";
+import { LOCAL_AUTH_TOKEN } from "../constant/Constant";
 
 interface AuthContextType {
   auth: boolean;
@@ -22,12 +23,10 @@ export default class AuthContextProvider extends Component<
   }
 
   setAuth = (auth: boolean) => {
-    if (auth) {
-      localStorage.setItem("auth", "login");
-    } else {
-      localStorage.removeItem("auth");
-    }
     this.setState({ auth });
+    if(!auth){
+      localStorage.removeItem(LOCAL_AUTH_TOKEN);
+    }
   };
 
   render() {
