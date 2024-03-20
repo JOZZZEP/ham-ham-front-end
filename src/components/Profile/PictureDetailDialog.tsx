@@ -44,7 +44,7 @@ export const PictureDetailDialog = (props:any) => {
             }}
           />
         </IconButton>
-        <Box sx={{ flex: "2 0 200px" }}>
+        <Box sx={{ flex: "1 0 30%" }}>
           <img
             draggable={false}
             width={"100%"}
@@ -80,14 +80,13 @@ export const PictureDetailDialog = (props:any) => {
         {props.detail && (
           <Box
             sx={{
-              flex: "3 0 350px",
+              flex: "2 0 60%",
               aspectRatio: "16/9",
               backgroundColor: "white",
               borderRadius: 3,
             }}
           >
             <LineChart
-              sx={{ width: "100%" }}
               xAxis={[
                 {
                   data: props.detail ? props.detail.list_date : [],

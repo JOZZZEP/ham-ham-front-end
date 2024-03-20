@@ -13,33 +13,39 @@ import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
-import Ham1 from "../assets/ham1.jpg";
-import Ham2 from "../assets/ham2.jpg";
-import Ham3 from "../assets/ham3.jpg";
-import Ham4 from "../assets/ham4.jpg";
-import Ham5 from "../assets/ham5.jpg";
 import { PictureShowDialog } from "../components/Profile/PictureShowDialog";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
+import { LoadingScreen } from "../util/LoadingScreen";
 
 function RankPage() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const hams = [Ham1, Ham2, Ham3, Ham4, Ham5];
   const [pictures, setPictures] = useState([]);
   const [pic, setPic] = useState(null);
   const pictureService = new PictureService();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    return () => {
-      pictureService.picRank().then((res) => {
+    pictureService
+      .picRank()
+      .then((res) => {
         if (res.response) {
-          console.log(res);
           setPictures(res.pictures);
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    };
   }, []);
+
+  if (loading) {
+    return (
+      <>
+        <LoadingScreen />
+      </>
+    );
+  }
 
   const handleClickOpen = (pic: any) => {
     setPic(pic);
@@ -101,20 +107,31 @@ function RankPage() {
                 subheader={pic.date}
                 action={
                   <Box
-                    sx={{ display: "flex", alignItems: "center",pr:1, gap: 1 }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      pr: 1,
+                      gap: 1,
+                    }}
                   >
-                    <Typography variant="h4">{index+1}</Typography>
-                    <Box  sx={{ display: "flex", alignItems:"center", flexDirection:"column"}}>
+                    <Typography variant="h4">{index + 1}</Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "column",
+                      }}
+                    >
                       <Typography
                         variant="h6"
                         color={
-                          pic.dif > 0 ? "green" : pic.dif < 0 ? "red" : "gray"
+                          pic.dif < 0 ? "green" : pic.dif > 0 ? "red" : "gray"
                         }
-                        sx={{ display: "flex", alignItems:"center" }}
+                        sx={{ display: "flex", alignItems: "center" }}
                       >
-                        {pic.dif > 0 ? (
+                        {pic.dif < 0 ? (
                           <ArrowDropUpIcon />
-                        ) : pic.dif < 0 ? (
+                        ) : pic.dif > 0 ? (
                           <ArrowDropDownIcon />
                         ) : (
                           <RemoveIcon />
@@ -128,6 +145,7 @@ function RankPage() {
               />
               <CardActionArea>
                 <CardMedia
+                  draggable={false}
                   component="img"
                   height="100%"
                   image={pic.url ? pic.url : DefaultPic}

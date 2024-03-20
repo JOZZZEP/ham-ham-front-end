@@ -4,6 +4,7 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  CircularProgress,
   Divider,
   IconButton,
   Typography,
@@ -12,18 +13,11 @@ import { Box, Container } from "@mui/system";
 import { ChangeEvent, useEffect, useState } from "react";
 import DefaultPic from "../assets/DefaultPic.png";
 import DefaultPicAdd from "../assets/DefaultPicAdd.png";
-import Ham1 from "../assets/ham1.jpg";
-import Ham2 from "../assets/ham2.jpg";
-import Ham3 from "../assets/ham3.jpg";
-import Ham4 from "../assets/ham4.jpg";
-import Ham5 from "../assets/ham5.jpg";
 import { OptionProfileDialog } from "../components/Profile/OptionProfileDialig";
 import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
 import { PictureUploadDialog } from "../components/Profile/PictureUploadDialog";
 import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
-
-const hams = [Ham1, Ham2, Ham3, Ham4, Ham5];
 
 function ProfilePage() {
   const [open, setOpen] = useState(false);
@@ -37,16 +31,20 @@ function ProfilePage() {
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
   const [pictureFile, setPictureFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const { user } = useUserContext();
   useEffect(() => {
-    return () => {
-      pictureService.picByUserID(user?.uid as number).then((res) => {
+    pictureService
+      .picByUserID(user?.uid as number)
+      .then((res) => {
         if (res.response) {
           setPictures(res.pictures);
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    };
   }, []);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -69,8 +67,6 @@ function ProfilePage() {
     setPid(pid);
     setPic(pic);
     setPicDetail(detail);
-    console.log(pid);
-
     setOpen(true);
   };
 
@@ -128,37 +124,42 @@ function ProfilePage() {
             }}
           >
             <Divider sx={{ flex: 1, mr: 1 }} />
-            <Typography variant="body1">
-              Pictures : {pictures.length}/5
-            </Typography>
+            {loading ? (
+              <CircularProgress color="warning" size={30} />
+            ) : (
+              <Typography variant="body1">
+                Pictures : {pictures.length}/5
+              </Typography>
+            )}
           </Box>
           <Box
             sx={{ p: 1, display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
           >
-            {pictures.length > 0 &&
-              pictures.map((pic: any, index) => (
-                <Box key={index}>
-                  <CardActionArea>
-                    <CardMedia
-                      draggable={false}
-                      component="img"
-                      sx={{
-                        p: 0.3,
-                        aspectRatio: "1/1",
-                      }}
-                      image={pic.picture.url}
-                      onClick={() =>
-                        handleClickOpen(
-                          pic.picture.url,
-                          pic.picture.pid,
-                          pic.detail
-                        )
-                      }
-                    />
-                  </CardActionArea>
-                </Box>
-              ))}
-            {pictures.length < 5 && (
+            {!loading && pictures.length > 0
+              ? pictures.map((pic: any, index) => (
+                  <Box key={index}>
+                    <CardActionArea>
+                      <CardMedia
+                        draggable={false}
+                        component="img"
+                        sx={{
+                          p: 0.3,
+                          aspectRatio: "1/1",
+                        }}
+                        image={pic.picture.url}
+                        onClick={() =>
+                          handleClickOpen(
+                            pic.picture.url,
+                            pic.picture.pid,
+                            pic.detail
+                          )
+                        }
+                      />
+                    </CardActionArea>
+                  </Box>
+                ))
+              : null}
+            {!loading && pictures.length < 5 ? (
               <Box>
                 <CardActionArea>
                   <input
@@ -184,7 +185,7 @@ function ProfilePage() {
                   </label>
                 </CardActionArea>
               </Box>
-            )}
+            ) : null}
           </Box>
         </Card>
       </Container>

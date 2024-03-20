@@ -2,7 +2,6 @@ import { Button, CardMedia, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { ChangeEvent, useRef, useState } from "react";
 import DefaultPic from "../../assets/DefaultPic.png";
-import { AuthService } from "../../services/AuthService";
 import CustomButton from "../CustomButtom/CustomButton";
 import CustomDialog from "../CustomDialog/CustomDialog";
 import CustomTextField from "../CustomTextfield/CustomTextField";
@@ -12,23 +11,23 @@ export const EditProfileDialog = (props: any) => {
   const usernameRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
   const rePasswordRef = useRef<HTMLInputElement>();
-  const authService = new AuthService();
+  // const authService = new AuthService();
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
+  // const handleSubmit = (event: any) => {
+  //   event.preventDefault();
 
-    const name = nameRef.current?.value;
-    const username = usernameRef.current?.value;
-    const password = passwordRef.current?.value;
+  //   const name = nameRef.current?.value;
+  //   const username = usernameRef.current?.value;
+  //   const password = passwordRef.current?.value;
 
-    authService.register({
-      name: name,
-      username: username,
-      password: password,
-      avatar: avatarFile,
-    });
-  };
+  //   authService.register({
+  //     name: name,
+  //     username: username,
+  //     password: password,
+  //     avatar: avatarFile,
+  //   });
+  // };
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {

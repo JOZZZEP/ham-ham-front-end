@@ -3,7 +3,6 @@ import {
   CardActionArea,
   CardMedia,
   Dialog,
-  DialogContent,
   IconButton,
   Typography,
 } from "@mui/material";
@@ -11,9 +10,11 @@ import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import DefaultPic from "../assets/DefaultPic.png";
 import SunflowerSeed from "../assets/sunflowerSeed.png";
-import { useAuthContext } from "../context/AuthContext";
+import { LOCAL_VOTE_PICTURE } from "../constant/Constant";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
+import { decode, encode } from "../util/Encrypt";
+import { LoadingScreen } from "../util/LoadingScreen";
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -25,35 +26,49 @@ function VotePage() {
   const [ham2Pic, setHam2Pic] = useState<any>(null);
   const [isVote, setIsVote] = useState(false);
   const [isVoteClick, setIsVoteClick] = useState(false);
-  const { auth } = useAuthContext();
+  const [loading, setLoading] = useState(true);
 
   const pictureService = new PictureService();
 
   useEffect(() => {
-    return () => {
-      if (!localStorage.getItem("votePic")) {
-        pictureService.picRandom().then((res) => {
+    if (!localStorage.getItem(LOCAL_VOTE_PICTURE)) {
+      pictureService
+        .picRandom()
+        .then((res) => {
           if (res.response) {
             const pic1 = { pid: res.pictures[0].pid, url: res.pictures[0].url };
             const pic2 = { pid: res.pictures[1].pid, url: res.pictures[1].url };
             setHam1Pic(pic1);
             setHam2Pic(pic2);
             localStorage.setItem(
-              "votePic",
-              JSON.stringify({
-                pic1: pic1,
-                pic2: pic2,
-              })
+              LOCAL_VOTE_PICTURE,
+              encode(
+                JSON.stringify({
+                  pic1: pic1,
+                  pic2: pic2,
+                })
+              )
             );
           }
+        })
+        .finally(() => {
+          setLoading(false);
         });
-      } else {
-        const pic = JSON.parse(localStorage.getItem("votePic")!);
-        setHam1Pic(pic.pic1);
-        setHam2Pic(pic.pic2);
-      }
-    };
+    } else {
+      const pic = JSON.parse(decode(localStorage.getItem(LOCAL_VOTE_PICTURE)!));
+      setHam1Pic(pic.pic1);
+      setHam2Pic(pic.pic2);
+      setLoading(false);
+    }
   }, [isVoteClick]);
+
+  if (loading) {
+    return (
+      <>
+        <LoadingScreen />
+      </>
+    );
+  }
 
   const vote = async () => {
     pictureService
@@ -65,7 +80,7 @@ function VotePage() {
         console.log(res);
       });
     setIsVoteClick((prevIsVoteClick) => !prevIsVoteClick);
-    localStorage.removeItem("votePic");
+    localStorage.removeItem(LOCAL_VOTE_PICTURE);
     setIsVote((prevIsVote) => !prevIsVote);
     await delay(1000);
     setOpen(false);
@@ -74,8 +89,10 @@ function VotePage() {
   };
 
   const handleClickOpen = (pic: any) => {
-    setPic(pic);
-    setOpen(true);
+    if (ham1Pic && ham2Pic) {
+      setPic(pic);
+      setOpen(true);
+    }
   };
 
   const handleClose = () => {
@@ -87,6 +104,11 @@ function VotePage() {
   return (
     <>
       <Container maxWidth={"lg"}>
+        <Box display="flex" justifyContent="center" textAlign={"center"}>
+          <Typography sx={{ fontSize: { md: 50, xs:0}, color:"white"}}>
+            WHICH HAM DO YOU LOVE?
+          </Typography>
+        </Box>
         <Box
           sx={{
             pt: 2,
@@ -136,71 +158,75 @@ function VotePage() {
             animation: "bounce-in 500ms ease-out",
             borderRadius: 3,
           },
+          "& .MuiDialog-container": {
+            "& .MuiPaper-root": {
+              height: "100%",
+            },
+          },
         }}
       >
-        <DialogContent
+        <Box
           sx={{
-            padding: 2,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            height: "100%",
           }}
         >
+          <img
+            draggable={false}
+            src={pic ? pic.url : DefaultPic}
+            style={{
+              width: "100%",
+              objectFit: "cover",
+              aspectRatio: "1/1",
+              maxHeight: "100%",
+              maxWidth: "100%",
+            }}
+          />
+          <IconButton
+            onClick={handleClose}
+            sx={{
+              position: "absolute",
+              right: 10,
+              top: 10,
+              width: "3rem",
+              height: "3rem",
+              backgroundColor: "rgb(250, 177, 117)",
+            }}
+          >
+            <CloseIcon
+              sx={{
+                color: "white",
+                fontSize: "2rem",
+                filter: "drop-shadow(3px 3px 2px black)",
+              }}
+            />
+          </IconButton>
           <Box
             sx={{
-              position: "relative",
+              position: "absolute",
+              bottom: 20,
+              right: 20,
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
+              justifyContent: "end",
             }}
+            className={`sun-seed  ${isVote ? "feed-ham-ham" : "bounce-in"}`}
           >
             <img
               draggable={false}
-              src={pic ? pic.url : DefaultPic}
+              src={SunflowerSeed}
               style={{
-                width: "100%",
-                objectFit: "cover",
-                aspectRatio: "1/1",
-                borderRadius: "10px",
+                filter: "drop-shadow(2px 2px 10px white)",
+                cursor: "pointer",
+                maxWidth: 100,
               }}
+              onClick={!isVote ? vote : undefined}
             />
-            <IconButton
-              onClick={handleClose}
-              sx={{
-                position: "absolute",
-                right: 10,
-                top: 10,
-                width: "3rem",
-                height: "3rem",
-                backgroundColor: "rgb(250, 177, 117)",
-              }}
-            >
-              <CloseIcon
-                sx={{
-                  color: "white",
-                  fontSize: "2rem",
-                  filter: "drop-shadow(3px 3px 2px black)",
-                }}
-              />
-            </IconButton>
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: 20,
-                right: 20,
-                display: "flex",
-                alignItems: "center",
-              }}
-              className={`sun-seed  ${isVote ? "feed-ham-ham" : "bounce-in"}`}
-            >
-              <img
-                draggable={false}
-                src={SunflowerSeed}
-                width={100}
-                style={{
-                  filter: "drop-shadow(2px 2px 10px white)",
-                  cursor: "pointer"
-                }}
-                onClick={!isVote ? vote : undefined}
-              />
-            </Box>
+          </Box>
+          {!isVote && (
             <Box
               sx={{
                 position: "absolute",
@@ -218,8 +244,8 @@ function VotePage() {
                 Vote --&gt;
               </Typography>
             </Box>
-          </Box>
-        </DialogContent>
+          )}
+        </Box>
       </Dialog>
     </>
   );

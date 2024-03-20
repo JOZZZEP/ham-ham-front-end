@@ -2,14 +2,7 @@ import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Ham1 from "../assets/ham1.jpg";
-import Ham2 from "../assets/ham2.jpg";
-import Ham3 from "../assets/ham3.jpg";
-import Ham4 from "../assets/ham4.jpg";
-import Ham5 from "../assets/ham5.jpg";
 import { UserService } from "../services/UserService";
-
-const hams = [Ham1, Ham2, Ham3, Ham4, Ham5];
 
 function AllUserPage() {
   const navigate = useNavigate();
@@ -17,12 +10,10 @@ function AllUserPage() {
 
   const userService = new UserService();
   useEffect(() => {
-    return () => {
       userService.getAllUser().then((res: any) => {
-        console.log(res);
+        if(res.response)
         setAllUser(res.user);
       });
-    };
   }, []);
 
   return (
@@ -32,7 +23,6 @@ function AllUserPage() {
           <Card key={index} sx={{ mt: 1, borderRadius: 3 }}>
             <CardActionArea
               onClick={() => {
-                console.log(5555);
 
                 if (location.pathname !== `/viewprofile/${user.username}`) {
                   navigate(`/viewprofile/${user.username}`);

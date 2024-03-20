@@ -40,7 +40,6 @@ export class AuthService {
     };
     const url = API_URL + "/user/getUser";
     const response = await axios.post(url, body);
-    console.log(response.data);
     return response.data;
   }
 }

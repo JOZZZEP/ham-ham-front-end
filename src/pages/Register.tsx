@@ -5,39 +5,14 @@ import {
   CardMedia,
   CircularProgress,
   Divider,
-  TextField,
   Typography,
-  styled,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { ChangeEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
+import CustomTextField from "../components/CustomTextfield/CustomTextField";
 import { AuthService } from "../services/AuthService";
-
-const CssTextField = styled(TextField)({
-  "& label": {
-    color: "rgb(200, 120, 20)",
-  },
-  "& label.Mui-focused": {
-    color: "rgb(200, 120, 20)",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "rgb(200, 120, 20)",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-      borderRadius: "10rem",
-    },
-    "&:hover fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "rgb(200, 120, 20)",
-    },
-  },
-});
 
 function RegisterPage() {
   const authService = new AuthService();
@@ -47,28 +22,47 @@ function RegisterPage() {
   const nameRef = useRef<HTMLInputElement>();
   const usernameRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
-  const rePasswordRef = useRef<HTMLInputElement>();
+  const confirmPasswordRef = useRef<HTMLInputElement>();
   const [loading, setLoading] = useState(false);
+  const [usernameValid, setUsernameValid] = useState(false);
+  const [passwordValid, setPasswordValid] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [textFieldError, setTextFieldError] = useState("");
 
   const handleSubmit = (event: any) => {
-    setLoading(true);
     event.preventDefault();
 
     const name = nameRef.current?.value;
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
+    const confirmPw = confirmPasswordRef.current?.value;
 
-    authService
-      .register({
-        name: name,
-        username: username,
-        password: password,
-        avatar: avatarFile,
-      })
-      .then(() => {
-        navigate("/login", { replace: true });
-        setLoading(false);
-      });
+    if (name && username && password && confirmPw) {
+      if (usernameValid && passwordValid) {
+        setLoading(true);
+        authService
+          .register({
+            name: name,
+            username: username,
+            password: password,
+            avatar: avatarFile,
+          })
+          .then((res) => {
+            if (res.response) {
+              navigate("/login", {
+                replace: true,
+                state: { openSnackbar: true },
+              });
+            } else {
+              setTextFieldError(res.error);
+            }
+            setLoading(false);
+          });
+      }
+    } else {
+      setTextFieldError("Please Enter All Textfield");
+    }
   };
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -76,6 +70,29 @@ function RegisterPage() {
       setAvatarFile(event.target.files[0]);
     }
   }
+
+  function isValidUsername(inputStr: string) {
+    const pattern: RegExp = /^[a-zA-Z0-9_]+$/;
+    if (!pattern.test(inputStr) && inputStr !== "") {
+      setUsernameError("Username a-z A-Z 0-9 _");
+      setUsernameValid(false);
+    } else {
+      setUsernameError("");
+      setUsernameValid(true);
+    }
+    setTextFieldError("");
+  }
+
+  const isValidPassword = () => {
+    if (passwordRef.current?.value !== confirmPasswordRef.current?.value) {
+      setPasswordError("Password not match");
+      setPasswordValid(false);
+    } else {
+      setPasswordError("");
+      setPasswordValid(true);
+    }
+    setTextFieldError("");
+  };
 
   return (
     <>
@@ -90,15 +107,29 @@ function RegisterPage() {
             height: "100%",
           }}
         >
-          <Card sx={{ p: 3, borderRadius: "1rem" }}>
+          <Card sx={{ p: 2, borderRadius: "1rem", position: "relative" }}>
+            {loading && (
+              <CircularProgress
+                color="warning"
+                size={50}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-25px",
+                  marginLeft: "-25px",
+                  zIndex: 999,
+                }}
+              />
+            )}
             <CardContent>
               <Box
                 className="bounce-in"
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "1rem",
-                  p: "0 1rem",
+                  gap: 2,
+                  p: 1,
                 }}
               >
                 <Typography color={"rgb(200, 120, 20)"} variant="h4">
@@ -168,79 +199,77 @@ function RegisterPage() {
                       gap: 2,
                     }}
                   >
-                    <CssTextField
+                    <CustomTextField
                       disabled={loading}
                       fullWidth
                       inputRef={nameRef}
                       label="Name"
-                      sx={{ fontSize: "1rem" }}
+                      onChange={() => setTextFieldError("")}
                     />
-                    <CssTextField
+                    <CustomTextField
                       disabled={loading}
                       fullWidth
                       inputRef={usernameRef}
                       label="Username"
-                      sx={{ fontSize: "1rem" }}
+                      FormHelperTextProps={{ sx: { color: "red" } }}
+                      helperText={usernameError}
+                      onChange={(e: any) => {
+                        isValidUsername(e.target.value);
+                      }}
                     />
                   </Box>
                 </Box>
-                <CssTextField
+                <CustomTextField
                   disabled={loading}
                   inputRef={passwordRef}
                   label="Password"
                   type="password"
+                  onChange={isValidPassword}
                 />
-                <CssTextField
+                <CustomTextField
                   disabled={loading}
-                  inputRef={rePasswordRef}
-                  label="Repeat Password"
+                  inputRef={confirmPasswordRef}
+                  label="Confirm Password"
                   type="password"
+                  FormHelperTextProps={{ sx: { color: "red" } }}
+                  helperText={passwordError}
+                  onChange={isValidPassword}
                 />
+                {textFieldError && (
+                  <Typography color={"red"} variant="body1">
+                    *{textFieldError}
+                  </Typography>
+                )}
               </Box>
-              <Divider className="bounce-in" sx={{ m: 3 }} />
+              <Divider className="bounce-in" sx={{ m: 1 }} />
               <Box
                 className="bounce-in"
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "1rem",
-                  p: "0 1rem",
+                  gap: 2,
+                  p: 1,
                 }}
               >
-                <Box sx={{ position: "relative" }}>
-                  <Button
-                    disabled={loading}
-                    variant="contained"
-                    fullWidth
-                    size="large"
-                    sx={{
-                      fontSize: "1.3rem",
-                      borderRadius: "10rem",
-                      backgroundColor: "rgb(240, 165, 70)",
+                <Button
+                  disabled={loading}
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  sx={{
+                    fontSize: "1.3rem",
+                    borderRadius: "10rem",
+                    backgroundColor: "rgb(240, 165, 70)",
+                    boxShadow: 0,
+                    ":hover": {
+                      backgroundColor: "rgb(200, 120, 20)",
                       boxShadow: 0,
-                      ":hover": {
-                        backgroundColor: "rgb(200, 120, 20)",
-                        boxShadow: 0,
-                      },
-                    }}
-                    onClick={handleSubmit}
-                  >
-                    Sign Up
-                  </Button>
-                  {loading && (
-                    <CircularProgress
-                      color="warning"
-                      size={30}
-                      sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        marginTop: "-15px",
-                        marginLeft: "-15px",
-                      }}
-                    />
-                  )}
-                </Box>
+                    },
+                  }}
+                  onClick={handleSubmit}
+                >
+                  Sign Up
+                </Button>
                 <Button
                   disabled={loading}
                   variant="outlined"
@@ -259,6 +288,7 @@ function RegisterPage() {
                   }}
                   onClick={() => {
                     navigate(-1);
+                    setTextFieldError("");
                   }}
                 >
                   Back

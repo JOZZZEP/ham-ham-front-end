@@ -3,70 +3,58 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Divider,
   Typography,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
-import Ham1 from "../assets/ham1.jpg";
-import Ham2 from "../assets/ham2.jpg";
-import Ham3 from "../assets/ham3.jpg";
-import Ham4 from "../assets/ham4.jpg";
-import Ham5 from "../assets/ham5.jpg";
 import { PictureShowDialog } from "../components/Profile/PictureShowDialog";
-import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
 import { UserService } from "../services/UserService";
-
-const hams = [Ham1, Ham2, Ham3, Ham4, Ham5];
+import { LoadingScreen } from "../util/LoadingScreen";
 
 function ViewProfilePage() {
   const [open, setOpen] = useState(false);
-  const [optionProfileOpen, setOptionProfileOpen] = useState(false);
-  const [uploadPictureOpen, setUploadPictureOpen] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(true);
 
   const [pic, setPic] = useState(null);
-  const [picDetail, setPicDetail] = useState(null);
+  // const [picDetail, setPicDetail] = useState(null);
 
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
   const userService = new UserService();
-  const [pictureFile, setPictureFile] = useState<File | null>(null);
+
   const params = useParams();
 
-  const { user } = useUserContext();
   const [viewUser, setViewUser] = useState<any>();
   useEffect(() => {
-    return () => {
-      console.log(params.username);
-
       if (params.username) {
         userService.getUserByUsername(params.username).then((res) => {
-          console.log(res.user);
           pictureService.picByUserID(res.user.uid).then((res) => {
             if (res.response) {
               setPictures(res.pictures);
             }
           });
           setViewUser(res.user);
+        }).finally(() => {
+          setLoading(false);
         });
       }
-    };
   }, []);
 
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    if (event.target.files?.length !== 0) {
-      setPictureFile(event.target.files![0]);
-      setUploadPictureOpen(true);
-    }
+  if (loading) {
+    return (
+      <>
+        <LoadingScreen />
+      </>
+    );
   }
 
-  const handleClickOpen = (pic: any, detail: any) => {
+  const handleClickOpen = (pic: any) => {
     setPic(pic);
-    setPicDetail(detail);
+    // setPicDetail(detail);
     setOpen(true);
   };
 
@@ -108,8 +96,8 @@ function ViewProfilePage() {
               </CardContent>
             </Box>
           </Box>
+          <Divider sx={{ flex: 1, mr: 1, ml:1 }} />
           <Box
-            mt={2}
             sx={{ p: 1, display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
           >
             {pictures.length !== 0 &&
@@ -125,7 +113,7 @@ function ViewProfilePage() {
                       }}
                       image={pic.picture.url}
                       onClick={() =>
-                        handleClickOpen(pic.picture.url, pic.detail)
+                        handleClickOpen(pic.picture.url)
                       }
                     />
                   </CardActionArea>

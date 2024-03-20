@@ -11,13 +11,8 @@ export const PictureShowDialog = (props: any) => {
       sx={{
         "& .MuiPaper-root": {
           backgroundColor: "rgb(250, 177, 117)",
-
           animation: "bounce-in 500ms ease-out",
           borderRadius: 3,
-          // background: `url(${props.pic ? props.pic : DefaultPic})`,
-          // backgroundPosition: "center",
-          // backgroundSize: "contain",
-          // backgroundRepeat: "no-repeat",
         },
         "& .MuiDialog-container": {
           "& .MuiPaper-root": { 
@@ -33,8 +28,6 @@ export const PictureShowDialog = (props: any) => {
           alignItems:"center",
           position: "relative",
           height:"100%",
-          // maxHeight:"100%",
-          //     maxWidth:"100%",
         }}
       >
       <IconButton

@@ -1,10 +1,10 @@
 import {
-    Button,
-    CardContent,
-    CardMedia,
-    IconButton,
-    Tooltip,
-    Typography,
+  Button,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export const OptionProfileDialog = (props: any) => {
   return (
     <>
       <CustomDialog open={props.open} onClose={props.onClose} maxWidth={"xs"}>
-        <Box sx={{ display: "flex", p: 2 }}>
+        <Box sx={{ display: "flex", flexWrap:"wrap", p: 2 }}>
           <Box sx={{ flex: "1 0 100px" }}>
             <CardMedia
               component="img"
@@ -36,7 +36,7 @@ export const OptionProfileDialog = (props: any) => {
           </Box>
           <Box
             sx={{
-              flex: "10 0 200px",
+              flex: "2 0 200px",
               display: "flex",
               flexDirection: "column",
               pl: 2,
