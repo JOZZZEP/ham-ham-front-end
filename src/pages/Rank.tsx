@@ -24,9 +24,10 @@ function RankPage() {
   const [pictures, setPictures] = useState([]);
   const [pic, setPic] = useState(null);
   const pictureService = new PictureService();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true)
     pictureService
       .picRank()
       .then((res) => {
@@ -60,7 +61,7 @@ function RankPage() {
       <Container maxWidth={"sm"}>
         <Box pt={2}>
           {pictures.map((pic: any, index) => (
-            <Card key={index} sx={{ mb: 2, borderRadius: 5 }}>
+            <Card className="bounce-in" key={index} sx={{ mb: 2, borderRadius: 5 }}>
               <CardHeader
                 avatar={
                   <Avatar
@@ -122,22 +123,35 @@ function RankPage() {
                         flexDirection: "column",
                       }}
                     >
-                      <Typography
-                        variant="h6"
-                        color={
-                          pic.dif < 0 ? "green" : pic.dif > 0 ? "red" : "gray"
-                        }
-                        sx={{ display: "flex", alignItems: "center" }}
-                      >
-                        {pic.dif < 0 ? (
-                          <ArrowDropUpIcon />
-                        ) : pic.dif > 0 ? (
-                          <ArrowDropDownIcon />
-                        ) : (
-                          <RemoveIcon />
-                        )}
-                        {pic.dif !== 0 && Math.abs(pic.dif)}
-                      </Typography>
+                     {pic.dif !== null ? (
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent:"center"
+                              }}
+                              color={
+                                pic.dif < 0
+                                  ? "green"
+                                  : pic.dif > 0
+                                  ? "red"
+                                  : "gray"
+                              }
+                            >
+                              {pic.dif < 0 ? (
+                                <ArrowDropUpIcon />
+                              ) : pic.dif > 0 ? (
+                                <ArrowDropDownIcon />
+                              ) : (
+                                <RemoveIcon />
+                              )}
+                              {pic.dif !== 0 &&
+                                Math.abs(pic.dif)}
+                            </Typography>
+                          ) : (
+                            <Typography variant="h6" color={"gray"}>No Rank</Typography>
+                          )}
                       <Typography variant="body1">{pic.score}</Typography>
                     </Box>
                   </Box>

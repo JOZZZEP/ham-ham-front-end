@@ -1,7 +1,10 @@
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-import { Button, IconButton } from "@mui/material";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { Button, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
 import { useState } from "react";
@@ -10,124 +13,203 @@ import { PictureService } from "../../services/PictureService";
 import CustomConfirmDialog from "../CustomDialog/CustomConfirmDialog";
 import CustomDialog from "../CustomDialog/CustomDialog";
 
-export const PictureDetailDialog = (props:any) => {
+export const PictureDetailDialog = (props: any) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const pictureService = new PictureService();
-  return (<>
-    <CustomDialog CustomDialog open={props.open} onClose={props.onClose} maxWidth={props.maxWidth}>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 3,
-          position: "relative",
-        }}
+  return (
+    <>
+      <CustomDialog
+        CustomDialog
+        open={props.open}
+        onClose={props.onClose}
+        maxWidth={props.maxWidth}
       >
-        <IconButton
-          onClick={props.onClose}
+        <Box
           sx={{
-            position: "absolute",
-            right: 10,
-            top: 10,
-            width: "3rem",
-            height: "3rem",
-            backgroundColor: "rgb(250, 177, 117)",
-            zIndex: 999,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            position: "relative",
           }}
         >
-          <CloseIcon
+          <IconButton
+            onClick={props.onClose}
             sx={{
-              color: "white",
-              fontSize: "2rem",
-              filter: "drop-shadow(3px 3px 2px black)",
+              position: "absolute",
+              right: 10,
+              top: 10,
+              width: "3rem",
+              height: "3rem",
+              backgroundColor: "rgb(250, 177, 117)",
+              zIndex: 999,
             }}
-          />
-        </IconButton>
-        <Box sx={{ flex: "1 0 30%" }}>
-          <img
-            draggable={false}
-            width={"100%"}
-            src={props.pic ? props.pic : DefaultPic}
-            style={{
-              objectFit: "cover",
-              aspectRatio: "1/1",
-              borderRadius: "10px",
-            }}
-          />
-          <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 2, pt: 1 }}
           >
-            <Button
-              variant="contained"
-              color="error"
-              size="large"
-              startIcon={<DeleteForeverIcon />}
-              onClick={() => setConfirmOpen(true)}
+            <CloseIcon
+              sx={{
+                color: "white",
+                fontSize: "2rem",
+                filter: "drop-shadow(3px 3px 2px black)",
+              }}
+            />
+          </IconButton>
+          <Box sx={{ flex: "1 0 35%" }}>
+            <img
+              draggable={false}
+              width={"100%"}
+              src={props.pic ? props.pic.url : DefaultPic}
+              style={{
+                objectFit: "cover",
+                aspectRatio: "1/1",
+                borderRadius: "10px",
+              }}
+            />
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: 2, pt: 1 }}
             >
-              Delete
-            </Button>
-            <Button
-              variant="contained"
-              color="info"
-              size="large"
-              startIcon={<InsertPhotoIcon />}
-            >
-              Change
-            </Button>
+              <Button
+                variant="contained"
+                color="error"
+                size="large"
+                startIcon={<DeleteForeverIcon />}
+                onClick={() => setConfirmOpen(true)}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                color="info"
+                size="large"
+                startIcon={<InsertPhotoIcon />}
+              >
+                Change
+              </Button>
+            </Box>
           </Box>
-        </Box>
-        {props.detail && (
           <Box
             sx={{
               flex: "2 0 60%",
-              aspectRatio: "16/9",
-              backgroundColor: "white",
               borderRadius: 3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
-            <LineChart
-              xAxis={[
-                {
-                  data: props.detail ? props.detail.list_date : [],
-                  label: props.detail ? props.detail.name_month : "NaN",
-                  scaleType: "band",
-                },
-              ]}
-              yAxis={[{ label: "Point" }]}
-              series={[
-                {
-                  curve: "linear",
-                  data: props.detail ? props.detail.list_win : [],
-                  color: "#59a14f",
-                  label: "Win",
-                },
-                {
-                  curve: "linear",
-                  data: props.detail ? props.detail.list_lose : [],
-                  color: "#e15759",
-                  label: "Lose",
-                },
-              ]}
-            />
+            {props.pic && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "start",
+                  justifyContent: "space-around",
+                  backgroundColor: "white",
+                  borderRadius: 3,
+                  p: 1,
+                }}
+              >
+                <Box
+                  textAlign={"center"}
+                  sx={{ fontSize: { md: 18, xs: 16 } }}
+                  color={
+                    props.pic.dif < 0
+                      ? "green"
+                      : props.pic.dif > 0
+                      ? "red"
+                      : "gray"
+                  }
+                >
+                  <Box color={"gray"}>RANK</Box>
+                  {props.pic.dif !== null ? (
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent:"center"
+                      }}
+                      color={
+                        props.pic.dif < 0
+                          ? "green"
+                          : props.pic.dif > 0
+                          ? "red"
+                          : "gray"
+                      }
+                    >
+                      {props.pic.dif < 0 ? (
+                        <ArrowDropUpIcon />
+                      ) : props.pic.dif > 0 ? (
+                        <ArrowDropDownIcon />
+                      ) : (
+                        <RemoveIcon />
+                      )}
+                      {props.pic.dif !== 0 && Math.abs(props.pic.dif)}
+                    </Typography>
+                  ) : (
+                    <Typography variant="h6" color={"gray"}>
+                      No Rank
+                    </Typography>
+                  )}
+                </Box>
+                <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
+                  <Box color={"gray"}>SCORE</Box>
+                  {props.pic.score}
+                </Box>
+                <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
+                  <Box color={"gray"}>UPDATE</Box>
+                  {props.pic.date}
+                </Box>
+              </Box>
+            )}
+            {props.detail && (
+              <Box
+                sx={{
+                  aspectRatio: "16/9",
+                  backgroundColor: "white",
+                  borderRadius: 3,
+                }}
+              >
+                <LineChart
+                  xAxis={[
+                    {
+                      data: props.detail ? props.detail.list_date : [],
+                      label: props.detail ? props.detail.name_month : "NaN",
+                      scaleType: "band",
+                    },
+                  ]}
+                  yAxis={[{ label: "Point" }]}
+                  series={[
+                    {
+                      curve: "linear",
+                      data: props.detail ? props.detail.list_win : [],
+                      color: "#59a14f",
+                      label: "Win",
+                    },
+                    {
+                      curve: "linear",
+                      data: props.detail ? props.detail.list_lose : [],
+                      color: "#e15759",
+                      label: "Lose",
+                    },
+                  ]}
+                />
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
-    </CustomDialog>
-    <CustomConfirmDialog
+        </Box>
+      </CustomDialog>
+      <CustomConfirmDialog
         title={"Delete?"}
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => {
           setLoading(true);
-          pictureService.picDelete(props.pid).then(()=>{
+          pictureService.picDelete(props.pid).then(() => {
             window.location.reload();
-          })
+          });
         }}
         confirmColor={"error"}
         confirmLabel={"Delelte"}
         loading={loading}
       />
-  </>
+    </>
   );
 };

@@ -3,18 +3,33 @@ import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserService } from "../services/UserService";
+import { LoadingScreen } from "../util/LoadingScreen";
 
 function AllUserPage() {
   const navigate = useNavigate();
   const [allUser, setAllUser] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
 
   const userService = new UserService();
   useEffect(() => {
-      userService.getAllUser().then((res: any) => {
-        if(res.response)
-        setAllUser(res.user);
+    setLoading(true);
+    userService
+      .getAllUser()
+      .then((res: any) => {
+        if (res.response) setAllUser(res.user);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
+
+  if (loading) {
+    return (
+      <>
+        <LoadingScreen />
+      </>
+    );
+  }
 
   return (
     <>
@@ -23,7 +38,6 @@ function AllUserPage() {
           <Card key={index} sx={{ mt: 1, borderRadius: 3 }}>
             <CardActionArea
               onClick={() => {
-
                 if (location.pathname !== `/viewprofile/${user.username}`) {
                   navigate(`/viewprofile/${user.username}`);
                 }

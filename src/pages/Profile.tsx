@@ -1,4 +1,7 @@
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import RemoveIcon from "@mui/icons-material/Remove";
 import {
   Card,
   CardActionArea,
@@ -18,6 +21,7 @@ import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
 import { PictureUploadDialog } from "../components/Profile/PictureUploadDialog";
 import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
+import "../util/Animate.css";
 
 function ProfilePage() {
   const [open, setOpen] = useState(false);
@@ -31,10 +35,11 @@ function ProfilePage() {
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
   const [pictureFile, setPictureFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const { user } = useUserContext();
   useEffect(() => {
+    setLoading(true);
     pictureService
       .picByUserID(user?.uid as number)
       .then((res) => {
@@ -76,9 +81,9 @@ function ProfilePage() {
   return (
     <>
       <Container maxWidth={"md"} sx={{ pt: 2, pb: 2 }}>
-        <Card>
+        <Card className="bounce-in">
           <Box sx={{ display: "flex", p: 2 }}>
-            <Box sx={{ flex: "1 0 100px" }}>
+            <Box className="bounce-in" sx={{ flex: "1 0 100px" }}>
               <CardMedia
                 draggable={false}
                 component="img"
@@ -137,8 +142,17 @@ function ProfilePage() {
           >
             {!loading && pictures.length > 0
               ? pictures.map((pic: any, index) => (
-                  <Box key={index}>
-                    <CardActionArea>
+                  <Box className="bounce-in" key={index}>
+                    <CardActionArea
+                      sx={{ position: "relative" }}
+                      onClick={() =>
+                        handleClickOpen(
+                          pic.picture,
+                          pic.picture.pid,
+                          pic.detail
+                        )
+                      }
+                    >
                       <CardMedia
                         draggable={false}
                         component="img"
@@ -147,20 +161,58 @@ function ProfilePage() {
                           aspectRatio: "1/1",
                         }}
                         image={pic.picture.url}
-                        onClick={() =>
-                          handleClickOpen(
-                            pic.picture.url,
-                            pic.picture.pid,
-                            pic.detail
-                          )
-                        }
                       />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          position: "absolute",
+                          top: 10,
+                          right: 10,
+                          backgroundColor: "white",
+                          borderRadius: "15px",
+                          pl: 1,
+                          pr: 1,
+                        }}
+                      >
+                        {pic.picture.dif !== null ? (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent:"center"
+                            }}
+                            color={
+                              pic.picture.dif < 0
+                                ? "green"
+                                : pic.picture.dif > 0
+                                ? "red"
+                                : "gray"
+                            }
+                          >
+                            {pic.picture.dif < 0 ? (
+                              <ArrowDropUpIcon />
+                            ) : pic.picture.dif > 0 ? (
+                              <ArrowDropDownIcon />
+                            ) : (
+                              <RemoveIcon />
+                            )}
+                            {pic.picture.dif !== 0 && Math.abs(pic.picture.dif)}
+                          </Typography>
+                        ) : (
+                          <Typography variant="h6" color={"gray"}>
+                            No Rank
+                          </Typography>
+                        )}
+                      </Box>
                     </CardActionArea>
                   </Box>
                 ))
               : null}
             {!loading && pictures.length < 5 ? (
-              <Box>
+              <Box className="bounce-in">
                 <CardActionArea>
                   <input
                     accept="image/*"

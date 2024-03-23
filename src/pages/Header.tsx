@@ -46,6 +46,8 @@ function Header() {
                 onClick={() => {
                   if (location.pathname !== "/") {
                     navigate("/");
+                  } else {
+                    window.location.reload();
                   }
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
@@ -85,6 +87,8 @@ function Header() {
                       onClick={() => {
                         if (location.pathname !== "/") {
                           navigate("/");
+                        } else {
+                          window.location.reload();
                         }
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
@@ -104,7 +108,9 @@ function Header() {
                       onClick={() => {
                         if (location.pathname !== "/") {
                           navigate("/");
-                        }
+                        }else{
+                      window.location.reload()
+                    }
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       sx={{
@@ -120,6 +126,8 @@ function Header() {
                       onClick={() => {
                         if (location.pathname !== "/rank") {
                           navigate("/rank");
+                        } else {
+                          window.location.reload();
                         }
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
@@ -140,6 +148,8 @@ function Header() {
                         onClick={() => {
                           if (location.pathname !== "/alluser") {
                             navigate("/alluser");
+                          } else {
+                            window.location.reload();
                           }
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
@@ -171,6 +181,8 @@ function Header() {
                   onClick={() => {
                     if (location.pathname !== "/profile") {
                       navigate("/profile");
+                    } else {
+                      window.location.reload();
                     }
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}

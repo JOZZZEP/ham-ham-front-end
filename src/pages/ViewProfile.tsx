@@ -17,31 +17,30 @@ import { LoadingScreen } from "../util/LoadingScreen";
 
 function ViewProfilePage() {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(false);
   const [pic, setPic] = useState(null);
-  // const [picDetail, setPicDetail] = useState(null);
-
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
   const userService = new UserService();
-
   const params = useParams();
-
   const [viewUser, setViewUser] = useState<any>();
   useEffect(() => {
-      if (params.username) {
-        userService.getUserByUsername(params.username).then((res) => {
+    setLoading(true);
+    if (params.username) {
+      userService
+        .getUserByUsername(params.username)
+        .then((res) => {
           pictureService.picByUserID(res.user.uid).then((res) => {
             if (res.response) {
               setPictures(res.pictures);
             }
           });
           setViewUser(res.user);
-        }).finally(() => {
+        })
+        .finally(() => {
           setLoading(false);
         });
-      }
+    }
   }, []);
 
   if (loading) {
@@ -54,7 +53,6 @@ function ViewProfilePage() {
 
   const handleClickOpen = (pic: any) => {
     setPic(pic);
-    // setPicDetail(detail);
     setOpen(true);
   };
 
@@ -64,9 +62,9 @@ function ViewProfilePage() {
   return (
     <>
       <Container maxWidth={"md"} sx={{ pt: 2, pb: 2 }}>
-        <Card>
+        <Card  className="bounce-in">
           <Box sx={{ display: "flex", p: 2 }}>
-            <Box sx={{ flex: "1 0 100px" }}>
+            <Box className="bounce-in" sx={{ flex: "1 0 100px" }}>
               <CardMedia
                 draggable={false}
                 component="img"
@@ -96,13 +94,13 @@ function ViewProfilePage() {
               </CardContent>
             </Box>
           </Box>
-          <Divider sx={{ flex: 1, mr: 1, ml:1 }} />
+          <Divider sx={{ flex: 1, mr: 1, ml: 1 }} />
           <Box
             sx={{ p: 1, display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
           >
             {pictures.length !== 0 &&
               pictures.map((pic: any, index) => (
-                <Box key={index}>
+                <Box  className="bounce-in" key={index}>
                   <CardActionArea>
                     <CardMedia
                       draggable={false}
@@ -112,9 +110,7 @@ function ViewProfilePage() {
                         aspectRatio: "1/1",
                       }}
                       image={pic.picture.url}
-                      onClick={() =>
-                        handleClickOpen(pic.picture.url)
-                      }
+                      onClick={() => handleClickOpen(pic.picture.url)}
                     />
                   </CardActionArea>
                 </Box>
@@ -122,7 +118,7 @@ function ViewProfilePage() {
           </Box>
         </Card>
       </Container>
-      <PictureShowDialog open={open} onClose={handleClose} pic={pic}/>
+      <PictureShowDialog open={open} onClose={handleClose} pic={pic} />
     </>
   );
 }

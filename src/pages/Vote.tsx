@@ -10,6 +10,7 @@ import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import DefaultPic from "../assets/DefaultPic.png";
 import SunflowerSeed from "../assets/sunflowerSeed.png";
+import { VoteResultDialog } from "../components/Profile/VoteResultDialog";
 import { LOCAL_VOTE_PICTURE } from "../constant/Constant";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
@@ -21,6 +22,8 @@ function delay(ms: number) {
 }
 function VotePage() {
   const [open, setOpen] = useState(false);
+  const [openVoteResult, setOpenVoteResult] = useState(false);
+  const [voteResult, setVoteResult] = useState<any>(null);
   const [pic, setPic] = useState<any>(null);
   const [ham1Pic, setHam1Pic] = useState<any>(null);
   const [ham2Pic, setHam2Pic] = useState<any>(null);
@@ -31,6 +34,7 @@ function VotePage() {
   const pictureService = new PictureService();
 
   useEffect(() => {
+    setLoading(true);
     if (!localStorage.getItem(LOCAL_VOTE_PICTURE)) {
       pictureService
         .picRandom()
@@ -71,21 +75,25 @@ function VotePage() {
   }
 
   const vote = async () => {
+    setIsVote((prevIsVote) => !prevIsVote);
+    await delay(1000);
+    setOpen(false);
+    await delay(200);
+    setIsVote((prevIsVote) => !prevIsVote);
+    setLoading(true);
     pictureService
       .picVote([
         { pid: ham1Pic.pid, result: ham1Pic.pid === pic.pid ? 1 : 0 },
         { pid: ham2Pic.pid, result: ham2Pic.pid === pic.pid ? 1 : 0 },
       ])
       .then((res) => {
-        console.log(res);
+        setVoteResult(res);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    setIsVoteClick((prevIsVoteClick) => !prevIsVoteClick);
     localStorage.removeItem(LOCAL_VOTE_PICTURE);
-    setIsVote((prevIsVote) => !prevIsVote);
-    await delay(1000);
-    setOpen(false);
-    await delay(200);
-    setIsVote((prevIsVote) => !prevIsVote);
+    setOpenVoteResult(true);
   };
 
   const handleClickOpen = (pic: any) => {
@@ -104,8 +112,13 @@ function VotePage() {
   return (
     <>
       <Container maxWidth={"lg"}>
-        <Box display="flex" justifyContent="center" textAlign={"center"}>
-          <Typography sx={{ fontSize: { md: 50, xs:0}, color:"white"}}>
+        <Box
+          className="bounce-in"
+          display="flex"
+          justifyContent="center"
+          textAlign={"center"}
+        >
+          <Typography sx={{ fontSize: { md: 50, xs: 0 }, color: "white" }}>
             WHICH HAM DO YOU LOVE?
           </Typography>
         </Box>
@@ -247,6 +260,17 @@ function VotePage() {
           )}
         </Box>
       </Dialog>
+      <VoteResultDialog
+        open={openVoteResult}
+        maxWidth={"md"}
+        onClose={() => {
+          setOpenVoteResult(false);
+          setIsVoteClick((prevIsVoteClick) => !prevIsVoteClick);
+        }}
+        pic1={ham1Pic.url}
+        pic2={ham2Pic.url}
+        voteResult={voteResult}
+      />
     </>
   );
 }
