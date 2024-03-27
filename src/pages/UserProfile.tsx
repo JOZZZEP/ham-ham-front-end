@@ -22,9 +22,10 @@ import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
 import { PictureUploadDialog } from "../components/Profile/PictureUploadDialog";
 import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
+import { UserService } from "../services/UserService";
 import "../util/Animate.css";
 
-function ProfilePage() {
+function UserProfilePage() {
   const [open, setOpen] = useState(false);
   const [optionProfileOpen, setOptionProfileOpen] = useState(false);
   const [uploadPictureOpen, setUploadPictureOpen] = useState(false);
@@ -35,23 +36,34 @@ function ProfilePage() {
 
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
+  const userService = new UserService();
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const params = useParams();
+  const [userRes, setUserRes] = useState<any>();
 
   const { user } = useUserContext();
   useEffect(() => {
-    setLoading(true);
-    pictureService
-      .picByUserID(user?.uid as number)
-      .then((res) => {
-        if (res.response) {
-          setPictures(res.pictures);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      setLoading(true);
+      userService
+        .getUserById(Number(params.uid))
+        .then((res) => {
+          if (res.response) {
+            setUserRes(res.user);
+          }
+        })
+        .then(() => {
+          pictureService
+            .picByUserID(Number(params.uid))
+            .then((res) => {
+              if (res.response) {
+                setPictures(res.pictures);
+              }
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        });
   }, []);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -103,7 +115,7 @@ function ProfilePage() {
                   draggable={false}
                   component="img"
                   sx={{ borderRadius: "50%", aspectRatio: "1/1" }}
-                  image={user?.avatar ? user.avatar : DefaultPic}
+                  image={userRes?.avatar ? userRes.avatar : DefaultPic}
                 />
               </Box>
               <Box
@@ -116,14 +128,14 @@ function ProfilePage() {
               >
                 <CardContent sx={{ position: "relative" }}>
                   <Typography component="div" variant="h6">
-                    {user?.name}
+                    {userRes?.name}
                   </Typography>
                   <Typography
                     variant="body1"
                     color="text.secondary"
                     component="div"
                   >
-                    @{user?.username}
+                    @{userRes?.username}
                   </Typography>
                   {params.uid === undefined && (
                     <IconButton
@@ -287,4 +299,4 @@ function ProfilePage() {
   );
 }
 
-export default ProfilePage;
+export default UserProfilePage;

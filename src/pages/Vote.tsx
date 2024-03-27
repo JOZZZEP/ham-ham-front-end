@@ -1,8 +1,10 @@
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   CardActionArea,
   CardMedia,
   Dialog,
+  Fab,
   IconButton,
   Typography,
 } from "@mui/material";
@@ -10,8 +12,11 @@ import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import DefaultPic from "../assets/DefaultPic.png";
 import SunflowerSeed from "../assets/sunflowerSeed.png";
+import CustomSetTimeRandomDialog from "../components/CustomDialog/CustomSetTimeRandomDialog";
 import { VoteResultDialog } from "../components/Profile/VoteResultDialog";
 import { LOCAL_VOTE_PICTURE } from "../constant/Constant";
+import { useUserContext } from "../context/UserContext";
+import { AdminService } from "../services/AdminService";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
 import { decode, encode } from "../util/Encrypt";
@@ -30,14 +35,24 @@ function VotePage() {
   const [isVote, setIsVote] = useState(false);
   const [isVoteClick, setIsVoteClick] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [timeRandomOpen, setTimeRandomOpen] = useState(false);
+  const [timeRandom, setTimeRandom] = useState(0);
+  const [voteList, setVoteList] = useState<any[]>([]);
 
   const pictureService = new PictureService();
+  const adminService = new AdminService();
+  const { user} = useUserContext();
 
   useEffect(() => {
     setLoading(true);
+    adminService.getTimeRandom().then((res) => {
+      if (res.response) {
+        setTimeRandom(res.time);
+      }
+    });
     if (!localStorage.getItem(LOCAL_VOTE_PICTURE)) {
       pictureService
-        .picRandom()
+        .picRandom(voteList)
         .then((res) => {
           if (res.response) {
             const pic1 = { pid: res.pictures[0].pid, url: res.pictures[0].url };
@@ -81,6 +96,48 @@ function VotePage() {
     await delay(200);
     setIsVote((prevIsVote) => !prevIsVote);
     setLoading(true);
+    const currentTime: Date = new Date();
+    if (localStorage.getItem("PIC_TIMEOUT")) {
+      currentTime.setSeconds(currentTime.getSeconds() + timeRandom);
+      const picTimeList: any[] = JSON.parse(
+        localStorage.getItem("PIC_TIMEOUT")!
+      );
+      const updatedPicTimeList = [
+        ...picTimeList,
+        {
+          pid: ham1Pic.pid === pic.pid ? ham1Pic.pid : ham2Pic.pid,
+          timeout: currentTime,
+        },
+      ];
+      console.log(updatedPicTimeList);
+      
+      localStorage.setItem("PIC_TIMEOUT", JSON.stringify(updatedPicTimeList));
+      const picTimeNewList: any[] = JSON.parse(
+        localStorage.getItem("PIC_TIMEOUT")!
+      );
+      console.log(picTimeNewList);
+      
+      const picTimeFilter: any[] = picTimeNewList.filter(
+        (pic) => new Date(pic.timeout) > new Date()
+      );
+      localStorage.setItem("PIC_TIMEOUT", JSON.stringify(picTimeFilter));
+      const notRandomPic = picTimeFilter.map((pic) => pic.pid);
+      console.log(notRandomPic);
+      
+      setVoteList(notRandomPic);
+    } else {
+      currentTime.setSeconds(currentTime.getSeconds() + timeRandom);
+      localStorage.setItem(
+        "PIC_TIMEOUT",
+        JSON.stringify([
+          {
+            pid: ham1Pic.pid === pic.pid ? ham1Pic.pid : ham2Pic.pid,
+            timeout: currentTime,
+          },
+        ])
+      );
+      setVoteList([ham1Pic.pid === pic.pid ? ham1Pic.pid : ham2Pic.pid]);
+    }
     pictureService
       .picVote([
         { pid: ham1Pic.pid, result: ham1Pic.pid === pic.pid ? 1 : 0 },
@@ -270,6 +327,28 @@ function VotePage() {
         pic1={ham1Pic.url}
         pic2={ham2Pic.url}
         voteResult={voteResult}
+      />
+      {user?.role === "admin" ?
+      <Fab
+        variant="extended"
+        size="medium"
+        sx={{
+          position: "fixed",
+          bottom: 20,
+          right: 20,
+          backgroundColor: "white",
+        }}
+        onClick={() => {
+          setTimeRandomOpen(true);
+        }}
+      >
+        <EditIcon sx={{ mr: 1 }} />
+        Set Time
+      </Fab>:null}
+      <CustomSetTimeRandomDialog
+        title={"Set Time Random"}
+        open={timeRandomOpen}
+        onClose={() => setTimeRandomOpen(false)}
       />
     </>
   );

@@ -25,6 +25,7 @@ export default class AuthContextProvider extends Component<
   setAuth = (auth: boolean) => {
     this.setState({ auth });
     if(!auth){
+
       localStorage.removeItem(LOCAL_AUTH_TOKEN);
     }
   };
@@ -32,7 +33,7 @@ export default class AuthContextProvider extends Component<
   render() {
     const contextValues = {
       auth: this.state.auth,
-      setAuth: this.setAuth,
+      setAuth: this.setAuth
     };
 
     return (

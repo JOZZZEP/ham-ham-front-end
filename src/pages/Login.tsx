@@ -47,7 +47,7 @@ function LoginPage() {
   }, []);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-  const handleClickLogin = () => {
+  const handleLoginSubmit = () => {
     setTextFieldError("");
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
@@ -155,6 +155,11 @@ function LoginPage() {
                       </InputAdornment>
                     ),
                   }}
+                  onKeyPress={(event: any) => {
+                    if (event.key === "Enter") {
+                      handleLoginSubmit()
+                    }
+                  }}
                 />
                 {textFieldError && (
                   <Typography color={"red"} variant="body1">
@@ -187,7 +192,7 @@ function LoginPage() {
                       boxShadow: 0,
                     },
                   }}
-                  onClick={handleClickLogin}
+                  onClick={handleLoginSubmit}
                 >
                   Login
                 </Button>

@@ -26,7 +26,7 @@ export const EditProfileDialog = (props: any) => {
   const [passwordInput, setPasswordInput] = useState("");
   const [newPWInput, setNewPWInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [usernameValid, setUsernameValid] = useState(false);
+  const [usernameValid, setUsernameValid] = useState(true);
   const [usernameError, setUsernameError] = useState("");
   const [textFieldError, setTextFieldError] = useState("");
   const userService = new UserService();

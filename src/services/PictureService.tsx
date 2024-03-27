@@ -8,9 +8,12 @@ export class PictureService {
     return response.data;
   }
 
-  async picRandom() {
+  async picRandom(list:any) {
+    const body= {
+      "list":list
+    }
     const url = API_URL + "/picture/random";
-    const response = await axios.get(url);
+    const response = await axios.post(url,body);
     return response.data;
   }
 

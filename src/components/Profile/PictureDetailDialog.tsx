@@ -3,20 +3,40 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-import RemoveIcon from "@mui/icons-material/Remove";
 import { Button, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import DefaultPic from "../../assets/DefaultPic.png";
 import { PictureService } from "../../services/PictureService";
 import CustomConfirmDialog from "../CustomDialog/CustomConfirmDialog";
 import CustomDialog from "../CustomDialog/CustomDialog";
+import { PictureUploadDialog } from "./PictureUploadDialog";
 
 export const PictureDetailDialog = (props: any) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [uploadPictureOpen, setUploadPictureOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const pictureService = new PictureService();
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    if (event.target.files) {
+      setPictureFile(event.target.files[0]);
+      setUploadPictureOpen(true);
+    }
+  }
+
+  const resetFileInput = () => {
+    console.log(props.pid);
+
+    const fileInput = document.getElementById(
+      "picture-change"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
   return (
     <>
       <CustomDialog
@@ -77,12 +97,23 @@ export const PictureDetailDialog = (props: any) => {
                 Delete
               </Button>
               <Button
+                component="label"
                 variant="contained"
                 color="info"
                 size="large"
                 startIcon={<InsertPhotoIcon />}
+                onClick={() => {
+                  resetFileInput();
+                }}
               >
                 Change
+                <input
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="picture-change"
+                  type="file"
+                  onChange={handleFileChange}
+                />
               </Button>
             </Box>
           </Box>
@@ -106,43 +137,44 @@ export const PictureDetailDialog = (props: any) => {
                   p: 1,
                 }}
               >
-                <Box
-                  textAlign={"center"}
-                  sx={{ fontSize: { md: 18, xs: 16 } }}
-                  color={
-                    props.pic.dif < 0
-                      ? "green"
-                      : props.pic.dif > 0
-                      ? "red"
-                      : "gray"
-                  }
-                >
+                <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
                   <Box color={"gray"}>RANK</Box>
-                  {props.pic.dif !== null ? (
-                    <Typography
-                      variant="h6"
+                  {props.pic.rank !== null ? (
+                    <Box
                       sx={{
                         display: "flex",
+                        justifyContent: "center",
                         alignItems: "center",
-                        justifyContent:"center"
                       }}
-                      color={
-                        props.pic.dif < 0
-                          ? "green"
-                          : props.pic.dif > 0
-                          ? "red"
-                          : "gray"
-                      }
                     >
-                      {props.pic.dif < 0 ? (
-                        <ArrowDropUpIcon />
-                      ) : props.pic.dif > 0 ? (
-                        <ArrowDropDownIcon />
-                      ) : (
-                        <RemoveIcon />
-                      )}
-                      {props.pic.dif !== 0 && Math.abs(props.pic.dif)}
-                    </Typography>
+                      <Typography sx={{ fontSize: { md: 18, xs: 16 } }}>
+                        {props.pic.rank}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        color={
+                          props.pic.difRank < 0
+                            ? "green"
+                            : props.pic.difRank > 0
+                            ? "red"
+                            : "gray"
+                        }
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {props.pic.difRank < 0 ? (
+                          <ArrowDropUpIcon />
+                        ) : props.pic.difRank > 0 ? (
+                          <ArrowDropDownIcon />
+                        ) : null}
+                        {props.pic.difRank != null &&
+                          props.pic.difRank !== 0 &&
+                          Math.abs(props.pic.difRank)}
+                      </Typography>
+                    </Box>
                   ) : (
                     <Typography variant="h6" color={"gray"}>
                       No Rank
@@ -151,10 +183,47 @@ export const PictureDetailDialog = (props: any) => {
                 </Box>
                 <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
                   <Box color={"gray"}>SCORE</Box>
-                  {props.pic.score}
+                  {props.pic.score && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography sx={{ fontSize: { md: 18, xs: 16 } }}>
+                        {props.pic.score}
+                      </Typography>
+
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        color={
+                          props.pic.difScore > 0
+                            ? "green"
+                            : props.pic.difScore < 0
+                            ? "red"
+                            : "gray"
+                        }
+                      >
+                        {props.pic.difScore > 0 ? (
+                          <ArrowDropUpIcon />
+                        ) : props.pic.difScore < 0 ? (
+                          <ArrowDropDownIcon />
+                        ) : null}
+                        {props.pic.difScore !== null &&
+                          props.pic.difScore !== 0 &&
+                          Math.abs(props.pic.difScore)}
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
                 <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
-                  <Box color={"gray"}>UPDATE</Box>
+                  <Box color={"gray"}>UPLOAD</Box>
                   {props.pic.date}
                 </Box>
               </Box>
@@ -179,15 +248,9 @@ export const PictureDetailDialog = (props: any) => {
                   series={[
                     {
                       curve: "linear",
-                      data: props.detail ? props.detail.list_win : [],
-                      color: "#59a14f",
-                      label: "Win",
-                    },
-                    {
-                      curve: "linear",
-                      data: props.detail ? props.detail.list_lose : [],
-                      color: "#e15759",
-                      label: "Lose",
+                      data: props.detail ? props.detail.list_total : [],
+                      color: "#008080",
+                      label: "Point",
                     },
                   ]}
                 />
@@ -209,6 +272,16 @@ export const PictureDetailDialog = (props: any) => {
         confirmColor={"error"}
         confirmLabel={"Delelte"}
         loading={loading}
+      />
+      <PictureUploadDialog
+        open={uploadPictureOpen}
+        onClose={() => {
+          setUploadPictureOpen(false);
+        }}
+        picture={pictureFile}
+        user={props.user}
+        pid={props.pid}
+        isChange={true}
       />
     </>
   );

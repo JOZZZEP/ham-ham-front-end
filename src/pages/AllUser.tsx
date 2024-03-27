@@ -7,7 +7,7 @@ import { LoadingScreen } from "../util/LoadingScreen";
 
 function AllUserPage() {
   const navigate = useNavigate();
-  const [allUser, setAllUser] = useState<any>([]);
+  const [allUser, setAllUser] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const userService = new UserService();
@@ -34,12 +34,12 @@ function AllUserPage() {
   return (
     <>
       <Container maxWidth={"md"} sx={{ pt: 2, pb: 2 }}>
-        {allUser.map((user: any, index: any) => (
+        {allUser.slice(1).map((user: any, index: any) => (
           <Card key={index} sx={{ mt: 1, borderRadius: 3 }}>
             <CardActionArea
               onClick={() => {
-                if (location.pathname !== `/viewprofile/${user.username}`) {
-                  navigate(`/viewprofile/${user.username}`);
+                if (location.pathname !== `/userprofile/${user.uid}`) {
+                  navigate(`/userprofile/${user.uid}`);
                 }
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}

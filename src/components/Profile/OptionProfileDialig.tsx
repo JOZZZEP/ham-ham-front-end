@@ -16,6 +16,7 @@ import CustomDialog from "../CustomDialog/CustomDialog";
 
 import EditIcon from "@mui/icons-material/Edit";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useUserContext } from "../../context/UserContext";
 import { EditProfileDialog } from "./EditProfileDialog";
 
 export const OptionProfileDialog = (props: any) => {
@@ -23,6 +24,7 @@ export const OptionProfileDialog = (props: any) => {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { setAuth } = useAuthContext();
+  const { setUser } = useUserContext();
   return (
     <>
       <CustomDialog open={props.open} onClose={props.onClose} maxWidth={"xs"}>
@@ -82,6 +84,7 @@ export const OptionProfileDialog = (props: any) => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => {
+          setUser(null)
           localStorage.removeItem(LOCAL_AUTH_TOKEN);
           setAuth(false);
         }}

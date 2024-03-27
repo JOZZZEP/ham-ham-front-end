@@ -13,11 +13,21 @@ export const PictureUploadDialog = (props: any) => {
   const [loading, setLoading] = useState(false);
   const handleClickUpload = (pic: any) => {
     setLoading(true);
-    pictureService
-      .picUserUpload({ picture: pic, uid: props.user.uid })
-      .then(() => {
-        window.location.reload();
+    if (props.isChange) {
+      pictureService.picDelete(props.pid).then(() => {
+        pictureService
+          .picUserUpload({ picture: pic, uid: props.user.uid })
+          .then(() => {
+            window.location.reload();
+          });
       });
+    } else {
+      pictureService
+        .picUserUpload({ picture: pic, uid: props.user.uid })
+        .then(() => {
+          window.location.reload();
+        });
+    }
   };
 
   return (

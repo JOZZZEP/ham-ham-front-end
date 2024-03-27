@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
 import { PictureShowDialog } from "../components/Profile/PictureShowDialog";
+import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
 import { LoadingScreen } from "../util/LoadingScreen";
@@ -25,9 +26,10 @@ function RankPage() {
   const [pic, setPic] = useState(null);
   const pictureService = new PictureService();
   const [loading, setLoading] = useState(false);
+  const { user } = useUserContext();
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     pictureService
       .picRank()
       .then((res) => {
@@ -61,7 +63,11 @@ function RankPage() {
       <Container maxWidth={"sm"}>
         <Box pt={2}>
           {pictures.map((pic: any, index) => (
-            <Card className="bounce-in" key={index} sx={{ mb: 2, borderRadius: 5 }}>
+            <Card
+              className="bounce-in"
+              key={index}
+              sx={{ mb: 2, borderRadius: 5 }}
+            >
               <CardHeader
                 avatar={
                   <Avatar
@@ -74,10 +80,16 @@ function RankPage() {
                       },
                     }}
                     onClick={() => {
-                      if (
-                        location.pathname !== `/viewprofile/${pic.username}`
-                      ) {
-                        navigate(`/viewprofile/${pic.username}`);
+                      if (user?.role === "admin") {
+                        if (location.pathname !== `/userprofile/${pic.uid}`) {
+                          navigate(`/userprofile/${pic.uid}`);
+                        }
+                      } else {
+                        if (
+                          location.pathname !== `/viewprofile/${pic.username}`
+                        ) {
+                          navigate(`/viewprofile/${pic.username}`);
+                        }
                       }
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
@@ -94,10 +106,16 @@ function RankPage() {
                       },
                     }}
                     onClick={() => {
-                      if (
-                        location.pathname !== `/viewprofile/${pic.username}`
-                      ) {
-                        navigate(`/viewprofile/${pic.username}`);
+                      if (user?.role === "admin") {
+                        if (location.pathname !== `/userprofile/${pic.uid}`) {
+                          navigate(`/userprofile/${pic.uid}`);
+                        }
+                      } else {
+                        if (
+                          location.pathname !== `/viewprofile/${pic.username}`
+                        ) {
+                          navigate(`/viewprofile/${pic.username}`);
+                        }
                       }
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
@@ -115,7 +133,7 @@ function RankPage() {
                       gap: 1,
                     }}
                   >
-                    <Typography variant="h4">{index + 1}</Typography>
+                    <Typography variant="h4">{pic.rank}</Typography>
                     <Box
                       sx={{
                         display: "flex",
@@ -123,35 +141,32 @@ function RankPage() {
                         flexDirection: "column",
                       }}
                     >
-                     {pic.dif !== null ? (
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent:"center"
-                              }}
-                              color={
-                                pic.dif < 0
-                                  ? "green"
-                                  : pic.dif > 0
-                                  ? "red"
-                                  : "gray"
-                              }
-                            >
-                              {pic.dif < 0 ? (
-                                <ArrowDropUpIcon />
-                              ) : pic.dif > 0 ? (
-                                <ArrowDropDownIcon />
-                              ) : (
-                                <RemoveIcon />
-                              )}
-                              {pic.dif !== 0 &&
-                                Math.abs(pic.dif)}
-                            </Typography>
+                      {pic.dif !== null ? (
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                          color={
+                            pic.dif < 0 ? "green" : pic.dif > 0 ? "red" : "gray"
+                          }
+                        >
+                          {pic.dif < 0 ? (
+                            <ArrowDropUpIcon />
+                          ) : pic.dif > 0 ? (
+                            <ArrowDropDownIcon />
                           ) : (
-                            <Typography variant="h6" color={"gray"}>No Rank</Typography>
+                            <RemoveIcon />
                           )}
+                          {pic.dif !== 0 && Math.abs(pic.dif)}
+                        </Typography>
+                      ) : (
+                        <Typography variant="h6" color={"gray"}>
+                          No Rank
+                        </Typography>
+                      )}
                       <Typography variant="body1">{pic.score}</Typography>
                     </Box>
                   </Box>

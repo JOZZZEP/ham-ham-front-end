@@ -11,6 +11,7 @@ import LoginPage from "./pages/Login";
 import ProfilePage from "./pages/Profile";
 import RankPage from "./pages/Rank";
 import RegisterPage from "./pages/Register";
+import UserProfilePage from "./pages/UserProfile";
 import ViewProfilePage from "./pages/ViewProfile";
 import VotePage from "./pages/Vote";
 import { AuthService } from "./services/AuthService";
@@ -66,8 +67,8 @@ function App() {
               <Route path="/rank" element={<RankPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route
-                path="/viewprofile/:username"
-                element={<ViewProfilePage />}
+                path="/userprofile/:uid"
+                element={<UserProfilePage />}
               />
               <Route path="/alluser" element={<AllUserPage />} />
               <Route path="*" element={<Navigate to="/" replace={true} />} />
