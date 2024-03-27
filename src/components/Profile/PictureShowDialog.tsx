@@ -28,6 +28,7 @@ export const PictureShowDialog = (props: any) => {
           alignItems:"center",
           position: "relative",
           height:"100%",
+          minWidth:"300px",
         }}
       >
       <IconButton

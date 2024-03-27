@@ -1,7 +1,14 @@
-import { Avatar, Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import {
+  Avatar,
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography,
+} from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useScrollContext } from "../context/ScrollContext";
 import { UserService } from "../services/UserService";
 import { LoadingScreen } from "../util/LoadingScreen";
 
@@ -9,17 +16,22 @@ function AllUserPage() {
   const navigate = useNavigate();
   const [allUser, setAllUser] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const {scrollPositions,setScrollPosition}= useScrollContext();
+  const { pathname } = useLocation();
 
   const userService = new UserService();
   useEffect(() => {
     setLoading(true);
     userService
-      .getAllUser()
-      .then((res: any) => {
-        if (res.response) setAllUser(res.user);
-      })
-      .finally(() => {
-        setLoading(false);
+    .getAllUser()
+    .then((res: any) => {
+      if (res.response) setAllUser(res.user);
+    })
+    .finally(() => {
+      setLoading(false);
+      if(scrollPositions){
+        window.scrollTo(0, scrollPositions[pathname]);
+      }
       });
   }, []);
 
@@ -38,6 +50,7 @@ function AllUserPage() {
           <Card key={index} sx={{ mt: 1, borderRadius: 3 }}>
             <CardActionArea
               onClick={() => {
+                setScrollPosition(pathname,window.scrollY)
                 if (location.pathname !== `/userprofile/${user.uid}`) {
                   navigate(`/userprofile/${user.uid}`);
                 }
@@ -50,8 +63,8 @@ function AllUserPage() {
                 <Box sx={{ display: "flex" }}>
                   <Avatar
                     sx={{
-                      width:100,
-                      height:100,
+                      width: 100,
+                      height: 100,
                       borderRadius: "50%",
                       aspectRatio: "1/1",
                     }}

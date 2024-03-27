@@ -11,9 +11,10 @@ import {
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
 import { PictureShowDialog } from "../components/Profile/PictureShowDialog";
+import { useScrollContext } from "../context/ScrollContext";
 import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
 import "../util/Animate.css";
@@ -27,6 +28,8 @@ function RankPage() {
   const pictureService = new PictureService();
   const [loading, setLoading] = useState(false);
   const { user } = useUserContext();
+  const {scrollPositions,setScrollPosition}= useScrollContext();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     setLoading(true);
@@ -39,6 +42,9 @@ function RankPage() {
       })
       .finally(() => {
         setLoading(false);
+        if(scrollPositions){
+          window.scrollTo(0, scrollPositions[pathname]);
+        }
       });
   }, []);
 
@@ -58,6 +64,7 @@ function RankPage() {
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <>
       <Container maxWidth={"sm"}>
@@ -81,10 +88,12 @@ function RankPage() {
                     }}
                     onClick={() => {
                       if (user?.role === "admin") {
+                        setScrollPosition(pathname,window.scrollY)
                         if (location.pathname !== `/userprofile/${pic.uid}`) {
                           navigate(`/userprofile/${pic.uid}`);
                         }
                       } else {
+                        setScrollPosition(pathname,window.scrollY)
                         if (
                           location.pathname !== `/viewprofile/${pic.username}`
                         ) {
@@ -107,10 +116,12 @@ function RankPage() {
                     }}
                     onClick={() => {
                       if (user?.role === "admin") {
+                        setScrollPosition(pathname,window.scrollY)
                         if (location.pathname !== `/userprofile/${pic.uid}`) {
                           navigate(`/userprofile/${pic.uid}`);
                         }
                       } else {
+                        setScrollPosition(pathname,window.scrollY)
                         if (
                           location.pathname !== `/viewprofile/${pic.username}`
                         ) {

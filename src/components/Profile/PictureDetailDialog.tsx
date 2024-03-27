@@ -73,7 +73,7 @@ export const PictureDetailDialog = (props: any) => {
               }}
             />
           </IconButton>
-          <Box sx={{ flex: "1 0 35%" }}>
+          <Box sx={{ flex: "1 0 35%"}}>
             <img
               draggable={false}
               width={"100%"}
@@ -131,7 +131,7 @@ export const PictureDetailDialog = (props: any) => {
                 sx={{
                   display: "flex",
                   alignItems: "start",
-                  justifyContent: "space-around",
+                  justifyContent: "space-evenly",
                   backgroundColor: "white",
                   borderRadius: 3,
                   p: 1,
@@ -139,7 +139,7 @@ export const PictureDetailDialog = (props: any) => {
               >
                 <Box textAlign={"center"} sx={{ fontSize: { md: 18, xs: 16 } }}>
                   <Box color={"gray"}>RANK</Box>
-                  {props.pic.rank !== null ? (
+                  {props.pic.difRank !== null ? (
                     <Box
                       sx={{
                         display: "flex",

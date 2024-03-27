@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import AuthContextProvider from "./context/AuthContext.tsx";
+import { ScrollContextProvider } from "./context/ScrollContext.tsx";
 import { UserContextProvider } from "./context/UserContext.tsx";
 import "./index.css";
 
@@ -24,8 +25,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <AuthContextProvider>
           <UserContextProvider>
-            <CssBaseline />
-            <App />
+            <ScrollContextProvider>
+              <CssBaseline />
+              <App />
+            </ScrollContextProvider>
           </UserContextProvider>
         </AuthContextProvider>
       </BrowserRouter>

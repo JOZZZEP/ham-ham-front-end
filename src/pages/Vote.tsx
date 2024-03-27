@@ -41,7 +41,7 @@ function VotePage() {
 
   const pictureService = new PictureService();
   const adminService = new AdminService();
-  const { user} = useUserContext();
+  const { user } = useUserContext();
 
   useEffect(() => {
     setLoading(true);
@@ -55,19 +55,30 @@ function VotePage() {
         .picRandom(voteList)
         .then((res) => {
           if (res.response) {
-            const pic1 = { pid: res.pictures[0].pid, url: res.pictures[0].url };
-            const pic2 = { pid: res.pictures[1].pid, url: res.pictures[1].url };
-            setHam1Pic(pic1);
-            setHam2Pic(pic2);
-            localStorage.setItem(
-              LOCAL_VOTE_PICTURE,
-              encode(
-                JSON.stringify({
-                  pic1: pic1,
-                  pic2: pic2,
-                })
-              )
-            );
+            if (res.pictures.length === 2) {
+              const pic1 = {
+                pid: res.pictures[0].pid,
+                url: res.pictures[0].url,
+              };
+              const pic2 = {
+                pid: res.pictures[1].pid,
+                url: res.pictures[1].url,
+              };
+              setHam1Pic(pic1);
+              setHam2Pic(pic2);
+              localStorage.setItem(
+                LOCAL_VOTE_PICTURE,
+                encode(
+                  JSON.stringify({
+                    pic1: pic1,
+                    pic2: pic2,
+                  })
+                )
+              );
+            } else {
+              localStorage.removeItem(LOCAL_VOTE_PICTURE);
+              window.location.reload();
+            }
           }
         })
         .finally(() => {
@@ -109,21 +120,17 @@ function VotePage() {
           timeout: currentTime,
         },
       ];
-      console.log(updatedPicTimeList);
-      
+
       localStorage.setItem("PIC_TIMEOUT", JSON.stringify(updatedPicTimeList));
       const picTimeNewList: any[] = JSON.parse(
         localStorage.getItem("PIC_TIMEOUT")!
       );
-      console.log(picTimeNewList);
-      
+
       const picTimeFilter: any[] = picTimeNewList.filter(
         (pic) => new Date(pic.timeout) > new Date()
       );
       localStorage.setItem(LOCAL_PIC_TIMEOUT, JSON.stringify(picTimeFilter));
       const notRandomPic = picTimeFilter.map((pic) => pic.pid);
-      console.log(notRandomPic);
-      
       setVoteList(notRandomPic);
     } else {
       currentTime.setSeconds(currentTime.getSeconds() + timeRandom);
@@ -242,6 +249,7 @@ function VotePage() {
             alignItems: "center",
             position: "relative",
             height: "100%",
+            minWidth: "300px",
           }}
         >
           <img
@@ -328,23 +336,24 @@ function VotePage() {
         pic2={ham2Pic.url}
         voteResult={voteResult}
       />
-      {user?.role === "admin" ?
-      <Fab
-        variant="extended"
-        size="medium"
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          backgroundColor: "white",
-        }}
-        onClick={() => {
-          setTimeRandomOpen(true);
-        }}
-      >
-        <EditIcon sx={{ mr: 1 }} />
-        Set Time
-      </Fab>:null}
+      {user?.role === "admin" ? (
+        <Fab
+          variant="extended"
+          size="medium"
+          sx={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            backgroundColor: "white",
+          }}
+          onClick={() => {
+            setTimeRandomOpen(true);
+          }}
+        >
+          <EditIcon sx={{ mr: 1 }} />
+          Set Time
+        </Fab>
+      ) : null}
       <CustomSetTimeRandomDialog
         title={"Set Time Random"}
         open={timeRandomOpen}

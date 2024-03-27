@@ -62,17 +62,14 @@ function App() {
         user?.role === "admin" ? (
           <>
             <Header />
-            <Routes>
-              <Route path="/" element={<VotePage />} />
-              <Route path="/rank" element={<RankPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route
-                path="/userprofile/:uid"
-                element={<UserProfilePage />}
-              />
-              <Route path="/alluser" element={<AllUserPage />} />
-              <Route path="*" element={<Navigate to="/" replace={true} />} />
-            </Routes>
+              <Routes>
+                <Route path="/" element={<VotePage />} />
+                <Route path="/rank" element={<RankPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/userprofile/:uid" element={<UserProfilePage />} />
+                <Route path="/alluser" element={<AllUserPage />} />
+                <Route path="*" element={<Navigate to="/" replace={true} />} />
+              </Routes>
           </>
         ) : (
           <>

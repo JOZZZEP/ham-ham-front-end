@@ -13,13 +13,11 @@ import {
   Typography,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
-import DefaultPicAdd from "../assets/DefaultPicAdd.png";
 import { OptionProfileDialog } from "../components/Profile/OptionProfileDialig";
 import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
-import { PictureUploadDialog } from "../components/Profile/PictureUploadDialog";
 import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
 import { UserService } from "../services/UserService";
@@ -28,7 +26,6 @@ import "../util/Animate.css";
 function UserProfilePage() {
   const [open, setOpen] = useState(false);
   const [optionProfileOpen, setOptionProfileOpen] = useState(false);
-  const [uploadPictureOpen, setUploadPictureOpen] = useState(false);
 
   const [pic, setPic] = useState<any>(null);
   const [pid, setPid] = useState<any>(null);
@@ -37,50 +34,34 @@ function UserProfilePage() {
   const [pictures, setPictures] = useState([]);
   const pictureService = new PictureService();
   const userService = new UserService();
-  const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const [userRes, setUserRes] = useState<any>();
 
   const { user } = useUserContext();
   useEffect(() => {
-      setLoading(true);
-      userService
-        .getUserById(Number(params.uid))
-        .then((res) => {
-          if (res.response) {
-            setUserRes(res.user);
-          }
-        })
-        .then(() => {
-          pictureService
-            .picByUserID(Number(params.uid))
-            .then((res) => {
-              if (res.response) {
-                setPictures(res.pictures);
-              }
-            })
-            .finally(() => {
-              setLoading(false);
-            });
-        });
+    setLoading(true);
+
+    userService
+      .getUserById(Number(params.uid))
+      .then((res) => {
+        if (res.response) {
+          setUserRes(res.user);
+        }
+      })
+      .then(() => {
+        pictureService
+          .picByUserID(Number(params.uid))
+          .then((res) => {
+            if (res.response) {
+              setPictures(res.pictures);
+            }
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      });
   }, []);
-
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    if (event.target.files) {
-      setPictureFile(event.target.files[0]);
-      setUploadPictureOpen(true);
-    }
-  }
-
-  const resetFileInput = () => {
-    const fileInput = document.getElementById(
-      "picture-upload"
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = "";
-    }
-  };
 
   const handleClickOpen = (pic: any, pid: any, detail: any) => {
     setPid(pid);
@@ -242,33 +223,6 @@ function UserProfilePage() {
                   </Box>
                 ))
               : null}
-            {!loading && pictures.length < 5 ? (
-              <Box className="bounce-in">
-                <CardActionArea>
-                  <input
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    id="picture-upload"
-                    type="file"
-                    onChange={handleFileChange}
-                  />
-                  <label htmlFor="picture-upload">
-                    <CardMedia
-                      draggable={false}
-                      component="img"
-                      sx={{
-                        p: 0.3,
-                        aspectRatio: "1/1",
-                      }}
-                      image={DefaultPicAdd}
-                      onClick={() => {
-                        resetFileInput();
-                      }}
-                    />
-                  </label>
-                </CardActionArea>
-              </Box>
-            ) : null}
           </Box>
         </Card>
       </Container>
@@ -285,15 +239,6 @@ function UserProfilePage() {
         user={user}
         open={optionProfileOpen}
         onClose={() => setOptionProfileOpen(false)}
-      />
-      <PictureUploadDialog
-        open={uploadPictureOpen}
-        onClose={() => {
-          setUploadPictureOpen(false);
-        }}
-        picture={pictureFile}
-        pid={pid}
-        user={user}
       />
     </>
   );
