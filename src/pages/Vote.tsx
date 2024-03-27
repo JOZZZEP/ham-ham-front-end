@@ -14,7 +14,7 @@ import DefaultPic from "../assets/DefaultPic.png";
 import SunflowerSeed from "../assets/sunflowerSeed.png";
 import CustomSetTimeRandomDialog from "../components/CustomDialog/CustomSetTimeRandomDialog";
 import { VoteResultDialog } from "../components/Profile/VoteResultDialog";
-import { LOCAL_VOTE_PICTURE } from "../constant/Constant";
+import { LOCAL_PIC_TIMEOUT, LOCAL_VOTE_PICTURE } from "../constant/Constant";
 import { useUserContext } from "../context/UserContext";
 import { AdminService } from "../services/AdminService";
 import { PictureService } from "../services/PictureService";
@@ -120,7 +120,7 @@ function VotePage() {
       const picTimeFilter: any[] = picTimeNewList.filter(
         (pic) => new Date(pic.timeout) > new Date()
       );
-      localStorage.setItem("PIC_TIMEOUT", JSON.stringify(picTimeFilter));
+      localStorage.setItem(LOCAL_PIC_TIMEOUT, JSON.stringify(picTimeFilter));
       const notRandomPic = picTimeFilter.map((pic) => pic.pid);
       console.log(notRandomPic);
       
@@ -128,7 +128,7 @@ function VotePage() {
     } else {
       currentTime.setSeconds(currentTime.getSeconds() + timeRandom);
       localStorage.setItem(
-        "PIC_TIMEOUT",
+        LOCAL_PIC_TIMEOUT,
         JSON.stringify([
           {
             pid: ham1Pic.pid === pic.pid ? ham1Pic.pid : ham2Pic.pid,
