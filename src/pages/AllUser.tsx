@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import { Avatar, Card, CardActionArea, CardContent, Typography } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -48,9 +48,10 @@ function AllUserPage() {
                 sx={{ display: "flex", p: 2, justifyContent: "space-between" }}
               >
                 <Box sx={{ display: "flex" }}>
-                  <img
-                    style={{
-                      width: 100,
+                  <Avatar
+                    sx={{
+                      width:100,
+                      height:100,
                       borderRadius: "50%",
                       aspectRatio: "1/1",
                     }}
