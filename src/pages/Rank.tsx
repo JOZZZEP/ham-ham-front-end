@@ -28,7 +28,7 @@ function RankPage() {
   const pictureService = new PictureService();
   const [loading, setLoading] = useState(false);
   const { user } = useUserContext();
-  const {scrollPositions,setScrollPosition}= useScrollContext();
+  const { scrollPositions, setScrollPosition } = useScrollContext();
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -42,8 +42,11 @@ function RankPage() {
       })
       .finally(() => {
         setLoading(false);
-        if(scrollPositions){
-          window.scrollTo(0, scrollPositions[pathname]);
+        if (scrollPositions[pathname] !== undefined) {
+          window.scrollTo({
+            top: scrollPositions[pathname],
+            behavior: "auto",
+          });
         }
       });
   }, []);
@@ -88,12 +91,12 @@ function RankPage() {
                     }}
                     onClick={() => {
                       if (user?.role === "admin") {
-                        setScrollPosition(pathname,window.scrollY)
+                        setScrollPosition(pathname, window.scrollY);
                         if (location.pathname !== `/userprofile/${pic.uid}`) {
                           navigate(`/userprofile/${pic.uid}`);
                         }
                       } else {
-                        setScrollPosition(pathname,window.scrollY)
+                        setScrollPosition(pathname, window.scrollY);
                         if (
                           location.pathname !== `/viewprofile/${pic.username}`
                         ) {
@@ -116,12 +119,12 @@ function RankPage() {
                     }}
                     onClick={() => {
                       if (user?.role === "admin") {
-                        setScrollPosition(pathname,window.scrollY)
+                        setScrollPosition(pathname, window.scrollY);
                         if (location.pathname !== `/userprofile/${pic.uid}`) {
                           navigate(`/userprofile/${pic.uid}`);
                         }
                       } else {
-                        setScrollPosition(pathname,window.scrollY)
+                        setScrollPosition(pathname, window.scrollY);
                         if (
                           location.pathname !== `/viewprofile/${pic.username}`
                         ) {

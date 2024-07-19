@@ -1,6 +1,5 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import RemoveIcon from "@mui/icons-material/Remove";
 import {
   Card,
@@ -9,23 +8,19 @@ import {
   CardMedia,
   CircularProgress,
   Divider,
-  IconButton,
-  Typography,
+  Typography
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DefaultPic from "../assets/DefaultPic.png";
-import { OptionProfileDialog } from "../components/Profile/OptionProfileDialig";
 import { PictureDetailDialog } from "../components/Profile/PictureDetailDialog";
-import { useUserContext } from "../context/UserContext";
 import { PictureService } from "../services/PictureService";
 import { UserService } from "../services/UserService";
 import "../util/Animate.css";
 
 function UserProfilePage() {
   const [open, setOpen] = useState(false);
-  const [optionProfileOpen, setOptionProfileOpen] = useState(false);
 
   const [pic, setPic] = useState<any>(null);
   const [pid, setPid] = useState<any>(null);
@@ -38,7 +33,6 @@ function UserProfilePage() {
   const params = useParams();
   const [userRes, setUserRes] = useState<any>();
 
-  const { user } = useUserContext();
   useEffect(() => {
     setLoading(true);
 
@@ -118,15 +112,7 @@ function UserProfilePage() {
                   >
                     @{userRes?.username}
                   </Typography>
-                  {params.uid === undefined && (
-                    <IconButton
-                      size={"large"}
-                      sx={{ position: "absolute", right: 0, top: 0 }}
-                      onClick={() => setOptionProfileOpen(true)}
-                    >
-                      <MoreHorizIcon />
-                    </IconButton>
-                  )}
+                  
                 </CardContent>
               </Box>
             </Box>
@@ -233,12 +219,7 @@ function UserProfilePage() {
         detail={picDetail}
         maxWidth={picDetail ? "lg" : "sm"}
         pid={pid}
-        user={user}
-      />
-      <OptionProfileDialog
-        user={user}
-        open={optionProfileOpen}
-        onClose={() => setOptionProfileOpen(false)}
+        user={userRes}
       />
     </>
   );

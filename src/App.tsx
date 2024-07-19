@@ -15,7 +15,7 @@ import UserProfilePage from "./pages/UserProfile";
 import ViewProfilePage from "./pages/ViewProfile";
 import VotePage from "./pages/Vote";
 import { AuthService } from "./services/AuthService";
-import { LoadingScreen } from "./util/LoadingScreen";
+import { FirstLoadingScreen } from "./util/FirstLoadingScreen";
 
 function App() {
   const { auth, setAuth } = useAuthContext();
@@ -51,7 +51,7 @@ function App() {
   if (loading) {
     return (
       <>
-        <LoadingScreen />
+        <FirstLoadingScreen />
       </>
     );
   }

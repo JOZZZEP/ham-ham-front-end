@@ -16,22 +16,25 @@ function AllUserPage() {
   const navigate = useNavigate();
   const [allUser, setAllUser] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const {scrollPositions,setScrollPosition}= useScrollContext();
+  const { scrollPositions, setScrollPosition } = useScrollContext();
   const { pathname } = useLocation();
 
   const userService = new UserService();
   useEffect(() => {
     setLoading(true);
     userService
-    .getAllUser()
-    .then((res: any) => {
-      if (res.response) setAllUser(res.user);
-    })
-    .finally(() => {
-      setLoading(false);
-      if(scrollPositions){
-        window.scrollTo(0, scrollPositions[pathname]);
-      }
+      .getAllUser()
+      .then((res: any) => {
+        if (res.response) setAllUser(res.user);
+      })
+      .finally(() => {
+        setLoading(false);
+        if (scrollPositions[pathname] !== undefined) {
+          window.scrollTo({
+            top: scrollPositions[pathname],
+            behavior: "auto",
+          });
+        }
       });
   }, []);
 
@@ -50,7 +53,7 @@ function AllUserPage() {
           <Card key={index} sx={{ mt: 1, borderRadius: 3 }}>
             <CardActionArea
               onClick={() => {
-                setScrollPosition(pathname,window.scrollY)
+                setScrollPosition(pathname, window.scrollY);
                 if (location.pathname !== `/userprofile/${user.uid}`) {
                   navigate(`/userprofile/${user.uid}`);
                 }
@@ -59,8 +62,9 @@ function AllUserPage() {
             >
               <Box
                 sx={{ display: "flex", p: 2, justifyContent: "space-between" }}
-              >
+                >
                 <Box sx={{ display: "flex" }}>
+                <Typography variant="h6" width={25}>{index + 1}</Typography>
                   <Avatar
                     sx={{
                       width: 100,

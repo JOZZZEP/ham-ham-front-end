@@ -28,8 +28,6 @@ export const PictureDetailDialog = (props: any) => {
   }
 
   const resetFileInput = () => {
-    console.log(props.pid);
-
     const fileInput = document.getElementById(
       "picture-change"
     ) as HTMLInputElement;

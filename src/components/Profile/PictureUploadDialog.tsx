@@ -34,7 +34,6 @@ export const PictureUploadDialog = (props: any) => {
     <CustomDialog
       CustomDialog
       open={props.open}
-      onClose={props.onClose}
       maxWidth={"sm"}
     >
       <Box
